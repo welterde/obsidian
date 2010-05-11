@@ -1,0 +1,17 @@
+<compound name="group">
+  <string name="name">trusted</string>
+  <string name="standard">false</string>
+  <string name="prefix">&amp;f</string>
+  <string name="postfix" />
+  <list name="commands">
+    <string>info</string>
+    <string>help</string>
+    <string>help commands</string>
+    <string>me</string>
+    <string>motd</string>
+    <string>about</string>
+    <string>abort</string>
+    <string>spawn</string>
+    <string>tp</string>
+  </list>
+</compound>

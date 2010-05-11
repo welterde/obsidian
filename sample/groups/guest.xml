@@ -1,0 +1,16 @@
+<compound name="group">
+  <string name="name">guest</string>
+  <string name="standard">true</string>
+  <string name="prefix">&amp;7</string>
+  <string name="postfix" />
+  <list name="commands">
+    <string>info</string>
+    <string>help</string>
+    <string>help commands</string>
+    <string>me</string>
+    <string>motd</string>
+    <string>about</string>
+    <string>abort</string>
+    <string>spawn</string>
+  </list>
+</compound>

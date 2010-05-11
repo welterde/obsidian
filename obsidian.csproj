@@ -1,0 +1,95 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{DB9DD34B-D1BE-4A32-A07C-7DB84BE7DBDB}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>obsidian</RootNamespace>
+    <AssemblyName>obsidian</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SourceAnalysisOverrideSettingsFile>C:\Dokumente und Einstellungen\copyboy\Anwendungsdaten\ICSharpCode/SharpDevelop3.0\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="LuaInterface">
+      <HintPath>LuaInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="NamedBinaryTag">
+      <HintPath>NamedBinaryTag.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Control\Account.cs" />
+    <Compile Include="Control\Command.cs" />
+    <Compile Include="Control\Group.cs" />
+    <Compile Include="Control\Lua.cs" />
+    <Compile Include="Data\IDataHost.cs" />
+    <Compile Include="Data\NbtHost.cs" />
+    <Compile Include="Data\Node.cs" />
+    <Compile Include="Data\XmlHost.cs" />
+    <Compile Include="Net\Heartbeat.cs" />
+    <Compile Include="Net\Listener.cs" />
+    <Compile Include="Net\Message.cs" />
+    <Compile Include="Net\Packet.cs" />
+    <Compile Include="Net\Protocol.cs" />
+    <Compile Include="Net\Server.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Utility\GZipper.cs" />
+    <Compile Include="Utility\LevelGenerator.cs" />
+    <Compile Include="World\BlockArgs.cs">
+    </Compile>
+    <Compile Include="World\Blocktype.cs" />
+    <Compile Include="World\Body.cs" />
+    <Compile Include="World\Level.cs" />
+    <Compile Include="World\NPCs\Mimic.cs" />
+    <Compile Include="World\Objects\StateButton.cs" />
+    <Compile Include="World\Objects\ActiveRegion.cs" />
+    <Compile Include="World\Objects\Portal.cs" />
+    <Compile Include="World\Objects\Teleporter.cs" />
+    <Compile Include="World\Player.cs" />
+    <Compile Include="World\Position.cs" />
+    <Compile Include="World\Region.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Net" />
+    <Folder Include="Data" />
+    <Folder Include="Control" />
+    <Folder Include="Utility" />
+    <Folder Include="World" />
+    <Folder Include="World\NPCs" />
+    <Folder Include="World\Objects" />
+  </ItemGroup>
+</Project>
