@@ -62,6 +62,8 @@ namespace obsidian.World {
 		#endregion
 		
 		public event EventHandler<BlockArgs> BlockEvent = delegate {  };
+		public event Action LoadEvent = delegate {  };
+		public event Action SaveEvent = delegate {  };
 		
 		public Level(short width,short depth,short height) {
 			this.width = width;
@@ -159,6 +161,7 @@ namespace obsidian.World {
 				level.mapdata = mapdata;
 				level.blockdata = blockdata;
 				level.custom = custom;
+				level.LoadEvent();
 				return level;
 			} catch { return null; }
 		}
@@ -167,7 +170,8 @@ namespace obsidian.World {
 			if (name=="") { throw new ArgumentException("Name musn't be an empty string.","name"); }
 			if (!RegexHelper.IsAlphaNumeric(name)) {
 				throw new ArgumentException("Only alphanumerical characters allowed.","name");
-			} Node node = new Node.Compound();
+			} SaveEvent();
+			Node node = new Node.Compound();
 			node["width"] = (short)width;
 			node["depth"] = (short)depth;
 			node["height"] = (short)height;
