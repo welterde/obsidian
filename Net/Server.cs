@@ -12,14 +12,7 @@ using obsidian.Control;
 
 namespace obsidian.Net {
 	public class Server {
-		#region Static Members
 		private static readonly MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
-		
-		public static readonly System.Text.RegularExpressions.Regex validName =
-			new System.Text.RegularExpressions.Regex(@"^[a-zA-Z\d\._]{1,16}$");
-		public static readonly System.Text.RegularExpressions.Regex validChat =
-			new System.Text.RegularExpressions.Regex(@"^[ -%'-~]*$");
-		#endregion
 		
 		#region Members
 		private string initfile = "init.lua";
@@ -186,7 +179,7 @@ namespace obsidian.Net {
 		
 		private void PlayerLogin(Player player,byte version,string name,string verify) {
 			if (version!=Protocol.version) { player.Kick("Wrong version"); }
-			else if (!validName.IsMatch(name)) { player.Kick("Invalid name"); }
+			else if (!RegexHelper.IsValidName(name)) { player.Kick("Invalid name"); }
 			else if (player.IP!="127.0.0.1" &&
 			         (verify == "--" || !verify.Equals(
 			         	BitConverter.ToString(
@@ -212,7 +205,7 @@ namespace obsidian.Net {
 		}
 		private void PlayerChat(Player player,string message) {
 			if (message=="") { return; }
-			if (!validChat.IsMatch(message)) {
+			if (!RegexHelper.IsValidChat(message)) {
 				new Message("&eInvalid characters in chat message.").Send(player);
 			} else if (message[0]=='/') {
 				Log(player.Name+" used "+message+".");

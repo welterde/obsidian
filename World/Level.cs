@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
 using obsidian.Control;
 using obsidian.Net;
 using obsidian.Data;
+using obsidian.Utility;
 
 namespace obsidian.World {
 	public class Level {
@@ -134,7 +134,7 @@ namespace obsidian.World {
 		public void Save(string name) {
 			if (name==null) { throw new ArgumentNullException("name"); }
 			if (name=="") { throw new ArgumentException("Name musn't be an empty string.","name"); }
-			if (!new Regex("[a-zA-Z0-9]+").IsMatch(name)) {
+			if (!RegexHelper.IsAlphaNumeric(name)) {
 				throw new ArgumentException("Only alphanumerical characters allowed.","name");
 			} Node node = new Node.Compound();
 			node["width"] = (short)width;
@@ -155,7 +155,7 @@ namespace obsidian.World {
 		public static Level Load(string name) {
 			if (name==null) { throw new ArgumentNullException("name"); }
 			if (name=="") { throw new ArgumentException("Name musn't be an empty string.","name"); }
-			if (!new Regex("[a-zA-Z0-9]+").IsMatch(name)) {
+			if (!RegexHelper.IsAlphaNumeric(name)) {
 				throw new ArgumentException("Only alphanumerical characters allowed.","name");
 			} string filename = "levels/"+name+".lvl";
 			try {

@@ -69,6 +69,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Utility\GZipper.cs" />
     <Compile Include="Utility\LevelGenerator.cs" />
+    <Compile Include="Utility\RegexHelper.cs" />
     <Compile Include="World\BlockArgs.cs">
     </Compile>
     <Compile Include="World\Blocktype.cs" />
