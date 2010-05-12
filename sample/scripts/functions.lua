@@ -5,6 +5,7 @@ Teleporter = luanet.import_type("obsidian.World.Objects.Teleporter")
 Portal = luanet.import_type("obsidian.World.Objects.Portal")
 Button = luanet.import_type("obsidian.World.Objects.StateButton")
 Blocktype = luanet.import_type("obsidian.World.Blocktype")
+Body = luanet.import_type("obsidian.World.Body")
 Mimic = luanet.import_type("obsidian.World.NPCs.Mimic")
 Command = function(name,syntax,help,func)
   server.Commands:Create(name,syntax,help,func)
@@ -16,6 +17,7 @@ server.InitializedEvent:Add(
     trusted = FindGroup("trusted")
     operator = FindGroup("operator")
     admin = FindGroup("admin")
+    owner = FindGroup("owner")
   end
 )
 

@@ -1,7 +1,7 @@
 <compound name="group">
-  <string name="name">admin</string>
+  <string name="name">owner</string>
   <string name="standard">false</string>
-  <string name="prefix">&amp;c</string>
+  <string name="prefix">&amp;3</string>
   <string name="postfix" />
   <list name="commands">
     <string>info</string>
@@ -21,9 +21,12 @@
     <string>destroy</string>
     <string>cuboid</string>
     <string>kick</string>
+    <string>admin</string>
     <string>op</string>
     <string>trusted</string>
     <string>guest</string>
+    <string>lua</string>
+    <string>reload</string>
     <string>save</string>
     <string>mimic</string>
     <string>dummy</string>

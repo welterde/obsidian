@@ -5,5 +5,6 @@ Command("setspawn","","Sets the spawn location to your current position.",
 	  return
     end
     player.Level.Spawn:Set(player.Position)
+    Message("&eSpawn position changed."):Send(player)
   end
 )

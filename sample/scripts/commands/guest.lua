@@ -19,7 +19,8 @@ Command("guest","<name>","Changes the group of a player to guest.",
 	  Message("&e"..target.Name.." already is in this group."):Send(player)
 	  return
 	end
-    if player.Group ~= admin and (target.Group == admin or target.Group == operator) then
+    if target.Group == owner or (target.Group == admin and player.Group ~= owner) or
+       (target.Group == operator and player.Group == operator) then
       Message("&eYou can't change the group of an "..target.Group.Name.."."):Send(player)
 	  return
 	end

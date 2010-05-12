@@ -19,6 +19,10 @@ Command("op","<name>","Changes the group of a player to operator.",
       Message("&e"..target.Name.." already is in this group."):Send(player)
       return
     end
+    if target.Group == owner or (target.Group == admin and player.Group == admin) then
+      Message("&eYou can't change the group of an "..target.Group.Name.."."):Send(player)
+	  return
+	end
     Message("&e*"..target.Group.Prefix..target.Name..target.Group.Postfix.."&e is now "..
             group.Prefix..group.Name..group.Postfix.."&e."):Send(player.Level)
     target.Group = group
