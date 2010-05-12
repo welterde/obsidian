@@ -18,6 +18,7 @@ namespace obsidian.Control {
 		private DateTime lastLogout = DateTime.MinValue;
 		private string lastIP = null;
 		private DateTime fileModified = DateTime.MinValue;
+		private Node custom = new Node.Compound();
 		#endregion
 		
 		#region Public members
@@ -49,6 +50,9 @@ namespace obsidian.Control {
 		public bool Online {
 			get { return (player!=null); }
 		}
+		public Node Custom {
+			get { return custom; }
+		}
 		#endregion
 		
 		private Account(string name) {
@@ -74,6 +78,7 @@ namespace obsidian.Control {
 				account.lastLogout = DateTime.Parse((string)statistics["lastLogout"]);
 				account.lastIP = (string)statistics["lastIP"];
 				account.fileModified = File.GetLastWriteTime(filename);
+				account.custom = (Node.Compound)node["custom"];
 				return account;
 			} catch { return null; }
 		}
@@ -87,6 +92,7 @@ namespace obsidian.Control {
 			statistics["lastLogin"] = lastLogin.ToString();
 			statistics["lastLogout"] = lastLogout.ToString();
 			statistics["lastIP"] = lastIP;
+			node["custom"] = custom;
 			host.Save("accounts/"+name+"."+host.Extension,node,"account");
 		}
 		

@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using obsidian.Net;
 using obsidian.Control;
+using obsidian.Data;
 
 namespace obsidian.World {
 	public class Player : Body {
@@ -21,6 +22,9 @@ namespace obsidian.World {
 		public Group Group {
 			get { return account.Group; }
 			set { account.Group = value; }
+		}
+		public Node Custom {
+			get { return account.Custom; }
 		}
 		public OnlineStatus Status {
 			get { return status; }

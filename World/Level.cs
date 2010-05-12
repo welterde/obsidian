@@ -20,6 +20,7 @@ namespace obsidian.World {
 		internal List<Player> players = new List<Player>();
 		internal List<Region> regions = new List<Region>();
 		private Position spawn;
+		private Node custom = new Node.Compound();
 		
 		internal byte this[int x,int y,int z] {
 			get { return mapdata[x+z*width+y*width*height]; }
@@ -54,6 +55,9 @@ namespace obsidian.World {
 		}
 		public Position Spawn {
 			get { return spawn; }
+		}
+		public Node Custom {
+			get { return custom; }
 		}
 		#endregion
 		
@@ -131,27 +135,6 @@ namespace obsidian.World {
 		}
 		#endregion
 		
-		public void Save(string name) {
-			if (name==null) { throw new ArgumentNullException("name"); }
-			if (name=="") { throw new ArgumentException("Name musn't be an empty string.","name"); }
-			if (!RegexHelper.IsAlphaNumeric(name)) {
-				throw new ArgumentException("Only alphanumerical characters allowed.","name");
-			} Node node = new Node.Compound();
-			node["width"] = (short)width;
-			node["depth"] = (short)depth;
-			node["height"] = (short)height;
-			Node spawnNode = new Node.Compound();
-			spawnNode["x"] = (short)spawn.X;
-			spawnNode["y"] = (short)spawn.Y;
-			spawnNode["z"] = (short)spawn.Z;
-			spawnNode["rotx"] = spawn.RotX;
-			spawnNode["roty"] = spawn.RotY;
-			node["spawn"] = spawnNode;
-			node["mapdata"] = mapdata;
-			node["blockdata"] = blockdata;
-			host.Save("levels/"+name+".lvl",node,"obsidian-level");
-		}
-		
 		public static Level Load(string name) {
 			if (name==null) { throw new ArgumentNullException("name"); }
 			if (name=="") { throw new ArgumentException("Name musn't be an empty string.","name"); }
@@ -170,12 +153,35 @@ namespace obsidian.World {
 					(byte)spawnNode["rotx"],(byte)spawnNode["roty"]);
 				byte[] mapdata = (byte[])node["mapdata"];
 				byte[] blockdata = (byte[])node["blockdata"];
+				Node.Compound custom = (Node.Compound)node["custom"];
 				Level level = new Level(width,depth,height);
 				level.spawn.Set(spawn);
 				level.mapdata = mapdata;
 				level.blockdata = blockdata;
+				level.custom = custom;
 				return level;
 			} catch { return null; }
+		}
+		public void Save(string name) {
+			if (name==null) { throw new ArgumentNullException("name"); }
+			if (name=="") { throw new ArgumentException("Name musn't be an empty string.","name"); }
+			if (!RegexHelper.IsAlphaNumeric(name)) {
+				throw new ArgumentException("Only alphanumerical characters allowed.","name");
+			} Node node = new Node.Compound();
+			node["width"] = (short)width;
+			node["depth"] = (short)depth;
+			node["height"] = (short)height;
+			Node spawnNode = new Node.Compound();
+			spawnNode["x"] = (short)spawn.X;
+			spawnNode["y"] = (short)spawn.Y;
+			spawnNode["z"] = (short)spawn.Z;
+			spawnNode["rotx"] = spawn.RotX;
+			spawnNode["roty"] = spawn.RotY;
+			node["spawn"] = spawnNode;
+			node["mapdata"] = mapdata;
+			node["blockdata"] = blockdata;
+			node["custom"] = custom;
+			host.Save("levels/"+name+".lvl",node,"obsidian-level");
 		}
 	}
 }
