@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Xml;
 using System.Collections.Generic;
+using System.Text;
 
 namespace obsidian.Data {
 	// TODO: Rewrite this. Use XmlReader/Writer.
-	// TODO: Support byte arrays, saved as hexadecimal string.
 	internal class XmlHost : IDataHost {
-		private Type[] supported = new Type[9]{
-			typeof(byte),typeof(short),typeof(int),typeof(long),typeof(float),
-			typeof(double),typeof(string),typeof(Node.List),typeof(Node.Compound)};
-		private string[] names = new string[9]{
-			"byte","short","int","long","float",
-			"double","string","list","compound"};
+		private Type[] supported = new Type[10]{
+			typeof(byte),typeof(short),typeof(int),typeof(long),typeof(float),typeof(double),
+			typeof(byte[]),typeof(string),typeof(Node.List),typeof(Node.Compound)};
+		private string[] names = new string[10]{
+			"byte","short","int","long","float","double",
+			"bytes","string","list","compound"};
 		
 		public string Extension {
 			get { return "xml"; }
@@ -42,13 +42,14 @@ namespace obsidian.Data {
 			try {
 				if (element.NodeType!=XmlNodeType.Element) { throw new FormatException("XmlElement expected."); }
 				switch (element.Name) {
-					case "byte": node = byte.Parse(element.InnerText); break;
-					case "short": node = short.Parse(element.InnerText); break;
-					case "int": node = int.Parse(element.InnerText); break;
-					case "long": node = long.Parse(element.InnerText); break;
-					case "float": node = float.Parse(element.InnerText); break;
-					case "double": node = double.Parse(element.InnerText); break;
-					case "string": node = element.InnerText; break;
+						case "byte": node = byte.Parse(element.InnerText); break;
+						case "short": node = short.Parse(element.InnerText); break;
+						case "int": node = int.Parse(element.InnerText); break;
+						case "long": node = long.Parse(element.InnerText); break;
+						case "float": node = float.Parse(element.InnerText); break;
+						case "double": node = double.Parse(element.InnerText); break;
+						case "bytes": node = StringToByteArray(element.InnerText); break;
+						case "string": node = element.InnerText; break;
 					case "list":
 						if (element.Name!="list") { throw new FormatException("List expected."); }
 						node = new Node.List();
@@ -82,6 +83,9 @@ namespace obsidian.Data {
 			XmlElement element = doc.CreateElement(type);
 			if (name!=null) { element.SetAttribute("name",name); }
 			switch (type) {
+				case "bytes":
+					element.InnerText = ByteArrayToString((byte[])node);
+					break;
 				case "list":
 					if (node.Count!=0) {
 						foreach (Node n in (Node.List)node) {
@@ -94,6 +98,18 @@ namespace obsidian.Data {
 					break;
 					default: element.InnerText = node.ToString(); break;
 			} return element;
+		}
+		
+		private string ByteArrayToString(byte[] array) {
+			StringBuilder hex = new StringBuilder(array.Length*2);
+			foreach (byte b in array) { hex.AppendFormat("{0:x2}",b); }
+			return hex.ToString();
+		}
+		private byte[] StringToByteArray(string hex) {
+			int count = hex.Length/2;
+			byte[] bytes = new byte[count];
+			for (int i=0;i<count;i++) { bytes[i] = Convert.ToByte(hex.Substring(i*2,2),16); }
+			return bytes;
 		}
 	}
 }
