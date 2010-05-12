@@ -5,22 +5,16 @@ using obsidian.Net;
 using obsidian.Control;
 
 namespace obsidian.World {
-	public class Player {
+	public class Player : Body {
 		#region Members
 		private readonly Server server;
 		private readonly Protocol helper;
-		private string name;
 		internal Account account;
-		internal Level level;
-		private Body body;
 		private OnlineStatus status = OnlineStatus.Connected;
 		private string quitMessage = null;
 		#endregion
 		
 		#region Public members
-		public string Name {
-			get { return name; }
-		}
 		public Account Account {
 			get { return account; }
 		}
@@ -28,33 +22,17 @@ namespace obsidian.World {
 			get { return account.Group; }
 			set { account.Group = value; }
 		}
-		public Level Level {
-			get { return level; }
-		}
-		public Position Position {
-			get { return (Position)body.Position.Clone(); }
-		}
 		public OnlineStatus Status {
 			get { return status; }
 		}
 		public string IP {
 			get { return helper.IPEndPoint.Address.ToString(); }
 		}
-		public bool Visible {
-			get { return body.Visible; }
-			set {
-				if (value!=body.Visible) {
-					if (value) { body.Create(); }
-					else { body.Destroy(); }
-				}
-			}
-		}
 		#endregion
 			
 		#region Events
 		internal event Action<Player> IdentifiedEvent = delegate {  };
 		internal event Action<Player,byte,string,string> LoginEvent = delegate {  };
-		internal event Action<Player> MoveEvent = delegate {  };
 		internal event Action<Player,string> ChatEvent = delegate {  };
 		internal event Action<Player,BlockArgs> InternalBlockEvent = delegate {  };
 		public event Action<Player> ReadyEvent = delegate {  };
@@ -75,7 +53,7 @@ namespace obsidian.World {
 		private void OnDisconnect() {
 			if (level!=null) {
 				level.players.Remove(this);
-				if (body.Visible) { body.Destroy(); }
+				Visible = false;
 			} try { DisconnectedEvent(this,quitMessage); }
 			catch (Exception e) { server.lua.Error(e); }
 			
@@ -109,8 +87,7 @@ namespace obsidian.World {
 		}
 		private void OnMove(byte id,ushort x,ushort y,ushort z,byte rotx,byte roty) {
 			if (status!=OnlineStatus.Ready) { return; }
-			body.Position.Set(x,y,z,rotx,roty);
-			MoveEvent(this);
+			Position.Set(x,y,z,rotx,roty);
 		}
 		private void OnChat(byte id,string message) {
 			if (status!=OnlineStatus.Ready) { return; }
@@ -142,8 +119,8 @@ namespace obsidian.World {
 					ReadyEvent(this);
 					Spawn(level.Spawn);
 					foreach (Body b in level.Bodies) { Protocol.SpawnPacket(b).Send(this); }
-					body = new Body(name,this,level);
-					body.Create(level.Spawn);
+					Position.Set(level.Spawn);
+					Visible = true;
 					status = OnlineStatus.Ready;
 					level.players.Add(this);
 				}).Start();

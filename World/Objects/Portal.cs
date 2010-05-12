@@ -29,10 +29,10 @@ namespace obsidian.World.Objects {
 		}
 		
 		protected override void OnEnter(Body body) {
-			if (body.Player!=null && Active && exit!=null) {
+			if (body is Player && Active && exit!=null) {
 				if (!ignore.Contains(body)) {
 					exit.ignore.Add(body);
-					body.Player.Teleport(
+					((Player)body).Teleport(
 						exit.X1*32+exit.Width*16,exit.Y1*32+exit.Depth*16,
 						exit.Z1*32+exit.Height*16,unchecked((byte)(body.Position.RotX+orientation)),body.Position.RotY);
 					Used(body);

@@ -4,11 +4,10 @@ using obsidian.Net;
 namespace obsidian.World {
 	public class Body {
 		#region Members
-		private readonly string name;
-		private readonly Player player = null;
+		protected string name;
 		private readonly Position position = new Position(0,0,0,0,0);
 		private readonly Position oldpos = new Position(0,0,0,0,0);
-		private readonly Level level;
+		internal Level level;
 		private byte id;
 		private bool visible = false;
 		#endregion
@@ -16,9 +15,6 @@ namespace obsidian.World {
 		#region Public members
 		public string Name {
 			get { return name; }
-		}
-		public Player Player {
-			get { return player; }
 		}
 		public Position Position {
 			get { return position; }
@@ -32,8 +28,13 @@ namespace obsidian.World {
 				return id;
 			}
 		}
-		public bool Visible {
+		public virtual bool Visible {
 			get { return visible; }
+			set {
+				if (value==visible) { return; }
+				if (value) { Create(true); }
+				else { Destroy(true); }
+			}
 		}
 		#endregion
 		
@@ -43,19 +44,17 @@ namespace obsidian.World {
 		public event Action<Body> MoveEvent = delegate {  };
 		#endregion
 		
-		public Body(string name,object bound,Level level) {
+		internal Body() {  }
+		public Body(string name,Level level) {
+			if (name==null) { throw new ArgumentNullException("name"); }
+			if (level==null) { throw new ArgumentNullException("name"); }
 			this.name = name;
-			if (bound is Player) { player = (Player)bound; }
 			this.level = level;
 		}
 		
-		public void Create(Position pos) {
-			this.position.Set(pos);
-			oldpos.Set(pos);
-			Create();
-		}
-		public void Create() {
-			if (visible) { throw new Exception("Body is already visible."); }
+		private void Create(bool ev) {
+			if (name==null) { throw new Exception("Name is null."); }
+			if (level==null) { throw new Exception("Level is null."); }
 			if (level.Bodies.Count>255) { throw new Exception("Too many bodies in one level."); }
 			visible = true;
 			bool[] used = new bool[255];
@@ -63,17 +62,16 @@ namespace obsidian.World {
 			for (byte i=0;i<used.Length;i++) { if (!used[i]) { id = i; break; } }
 			Protocol.SpawnPacket(this).Send(level);
 			level.bodies.Add(this);
-			Created(this);
+			if (ev) { Created(this); }
 		}
-		public void Destroy() {
-			if (!visible) { throw new Exception("Body isn't visible."); }
+		private void Destroy(bool ev) {
 			visible = false;
 			Protocol.DiePacket(id).Send(level);
 			level.bodies.Remove(this);
-			Destroyed(this);
+			if (ev) { Destroyed(this); }
 		}
 		
-		public void Update() {
+		internal void Update() {
 			if (!visible) { return; }
 			Packet packet = null;
 			bool posChanged = false,farChanged = false,rotChanged = false;

@@ -20,8 +20,8 @@ namespace obsidian.World.Objects {
 		}
 		
 		protected override void OnEnter(Body body) {
-			if (body.Player!=null && Active) {
-				body.Player.Teleport(target);
+			if (body is Player && Active) {
+				((Player)body).Teleport(target);
 				Used(body);
 			} base.OnEnter(body);
 		}
