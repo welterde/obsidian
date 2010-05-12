@@ -170,9 +170,10 @@ namespace obsidian.Net {
 			while (true) {
 				Thread.Sleep(30);
 				try {
+					foreach (Body body in new List<Body>(level.Bodies)) { body.Update(); }
 					if (++counter>=6) {
 						foreach (Region region in new List<Region>(level.Regions)) { region.Update(); }
-					} foreach (Body body in new List<Body>(level.Bodies)) { body.Update(); }
+					}
 				} catch (Exception e) { lua.Error(e); }
 			}
 		}

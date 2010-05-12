@@ -37,6 +37,12 @@ namespace obsidian.World {
 		}
 		#endregion
 		
+		#region Events
+		public event Action<Body> Created = delegate {  };
+		public event Action<Body> Destroyed = delegate {  };
+		public event Action<Body> MoveEvent = delegate {  };
+		#endregion
+		
 		public Body(string name,object bound,Level level) {
 			this.name = name;
 			if (bound is Player) { player = (Player)bound; }
@@ -57,12 +63,14 @@ namespace obsidian.World {
 			for (byte i=0;i<used.Length;i++) { if (!used[i]) { id = i; break; } }
 			Protocol.SpawnPacket(this).Send(level);
 			level.bodies.Add(this);
+			Created(this);
 		}
 		public void Destroy() {
 			if (!visible) { throw new Exception("Body isn't visible."); }
 			visible = false;
 			Protocol.DiePacket(id).Send(level);
 			level.bodies.Remove(this);
+			Destroyed(this);
 		}
 		
 		public void Update() {
@@ -87,6 +95,7 @@ namespace obsidian.World {
 			} if (packet!=null) {
 				oldpos.Set(position);
 				packet.Send(level);
+				MoveEvent(this);
 			}
 		}
 	}
