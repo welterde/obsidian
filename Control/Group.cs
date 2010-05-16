@@ -15,7 +15,7 @@ namespace obsidian.Control {
 		private string prefix = "";
 		private string postfix = "";
 		private List<Command> commands = new List<Command>();
-		private Node custom;
+		private Node custom = new Node();
 		#endregion
 		
 		#region Public members
@@ -58,7 +58,7 @@ namespace obsidian.Control {
 				group.prefix = (string)node["prefix"].Value;
 				group.postfix = (string)node["postfix"].Value;
 				group.commands = commands.LoadPermissionList(node["commands"]);
-				group.custom = node["custom"]??new Node();
+				group.custom = node["custom"]??group.custom;
 				return group;
 			} catch { return null; }
 		}

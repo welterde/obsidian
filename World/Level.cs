@@ -20,7 +20,7 @@ namespace obsidian.World {
 		internal List<Player> players = new List<Player>();
 		internal List<Region> regions = new List<Region>();
 		private Position spawn;
-		private Node custom;
+		private Node custom = new Node();
 		
 		internal byte this[int x,int y,int z] {
 			get { return mapdata[x+z*width+y*width*height]; }
@@ -154,12 +154,11 @@ namespace obsidian.World {
 					(byte)spawnNode["rotx"].Value,(byte)spawnNode["roty"].Value);
 				byte[] mapdata = (byte[])node["mapdata"].Value;
 				byte[] blockdata = (byte[])node["blockdata"].Value;
-				Node custom = node["custom"]??new Node();
 				Level level = new Level(width,depth,height);
 				level.spawn.Set(spawn);
 				level.mapdata = mapdata;
 				level.blockdata = blockdata;
-				level.custom = custom;
+				level.custom = node["custom"]??level.custom;
 				return level;
 			} catch { return null; }
 		}
