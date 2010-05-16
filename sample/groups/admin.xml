@@ -17,7 +17,6 @@
     <string>setspawn</string>
     <string>create</string>
     <string>create portal</string>
-    <string>create portalbutton</string>
     <string>destroy</string>
     <string>cuboid</string>
     <string>show</string>
@@ -29,6 +28,7 @@
     <string>lua</string>
     <string>save</string>
     <string>dummy</string>
+    <string>dummy destroy</string>
   </list>
   <compound name="custom">
     <list name="changegroup">
