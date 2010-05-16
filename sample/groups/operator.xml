@@ -29,5 +29,9 @@
       <string>guest</string>
       <string>trusted</string>
     </list>
+    <list name="kick">
+      <string>guest</string>
+      <string>trusted</string>
+    </list>
   </compound>
 </compound>

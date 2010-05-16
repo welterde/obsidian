@@ -36,5 +36,10 @@
       <string>trusted</string>
       <string>operator</string>
     </list>
+    <list name="kick">
+      <string>guest</string>
+      <string>trusted</string>
+      <string>operator</string>
+    </list>
   </compound>
 </compound>

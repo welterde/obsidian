@@ -14,10 +14,11 @@ Command("kick","<player> [<message>]","Kicks a player from the server.",
 	  Message("&eYou can't kick yourself."):Send(player)
 	  return
 	end
-    if target.Group == admin and player.Group ~= admin then
-      Message("&eYou can't kick an admin."):Send(player)
+    local node = player.Group.Custom["kick"]
+    if node and not node:Contains(target.Group.Name) then
+      Message("&eYou can't kick an "..target.Group.Name.."."):Send(player)
 	  return
-    end
+	end
 	target:Kick(args[2] or "Kicked by "..player.Name)
   end
 )
