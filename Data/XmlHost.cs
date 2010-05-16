@@ -1,115 +1,112 @@
 ﻿using System;
-using System.Xml;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace obsidian.Data {
-	// TODO: Rewrite this. Use XmlReader/Writer.
-	internal class XmlHost : IDataHost {
-		private Type[] supported = new Type[10]{
-			typeof(byte),typeof(short),typeof(int),typeof(long),typeof(float),typeof(double),
-			typeof(byte[]),typeof(string),typeof(Node.List),typeof(Node.Compound)};
-		private string[] names = new string[10]{
-			"byte","short","int","long","float","double",
-			"bytes","string","list","compound"};
+	public class XmlHost : DataHost {
+		private static XmlHost instance = new XmlHost();
+		private static Type[] supported = new Type[10]{
+			typeof(bool),typeof(byte),typeof(short),typeof(int),typeof(long),typeof(float),
+			typeof(double),typeof(string),typeof(List<Node>),typeof(Dictionary<string,Node>) };
+		private static string[] names = new string[10]{
+			"bool","byte","short","int","long","float","double","string","list","compound" };
 		
-		public string Extension {
+		public static XmlHost Instance {
+			get { return instance; }
+		}
+		
+		protected override Type[] Supported {
+			get { return supported; }
+		}
+		public override string Extension {
 			get { return "xml"; }
 		}
-		public bool Supports(Type type) {
-			return ((IList<Type>)supported).Contains(type);
+		
+		private XmlHost() {  }
+		
+		protected override void CheckName(string name) {  }
+		protected override void CheckNode(Node node) {  }
+		
+		public override Node Load(string filename,out string name) {
+			if (filename==null) { throw new ArgumentNullException("filename"); }
+			XElement root = XElement.Load(filename);
+			name = GetElementName(root);
+			return ElementToNode(root);
+		}
+		public override void Save(string filename,Node root,string name) {
+			if (filename==null) { throw new ArgumentNullException("filename"); }
+			if (root==null) { throw new ArgumentNullException("root"); }
+			if (name==null) { throw new ArgumentNullException("name"); }
+			Check(root,new LinkedList<Node>());
+			XElement element = NodeToElement(root);
+			element.SetAttributeValue("name",name);
+			XmlWriterSettings settings = new XmlWriterSettings(){ OmitXmlDeclaration=false };
+			using (XmlWriter writer = XmlWriter.Create(new StringBuilder(),settings)) {
+				element.Save(writer);
+			}
 		}
 		
-		public Node Load(string filename,out string name) {
-			XmlDocument doc = new XmlDocument();
-			try { doc.Load(filename); }
-			catch (Exception e) { throw new FormatException("Could not load or parse '"+filename+"'.",e); }
-			XmlNode root = doc.FirstChild;
-			if (root is XmlElement && root.NextSibling==null) {
-				return XmlElementToNode((XmlElement)root,out name);
-			} else { throw new FormatException("Invalid format of XML file."); }
-		}
-		public void Save(string filename,Node root,string name) {
-			XmlDocument doc = new XmlDocument();
-			doc.AppendChild(NodeToXmlElement(doc,root,name));
-			doc.Save(filename);
+		private string GetElementName(XElement element) {
+			XAttribute attr = element.Attribute("name");
+			if (attr==null) { throw new FormatException("There is no name attribute."); }
+			return attr.Value;
 		}
 		
-		private Node XmlElementToNode(XmlElement element,out string name) {
-			int index = ((IList<string>)names).IndexOf(element.Name);
-			if (index<0) { throw new FormatException("Unknown type '"+element.Name+"'."); }
-			Node node = null;
-			try {
-				if (element.NodeType!=XmlNodeType.Element) { throw new FormatException("XmlElement expected."); }
-				switch (element.Name) {
-						case "byte": node = byte.Parse(element.InnerText); break;
-						case "short": node = short.Parse(element.InnerText); break;
-						case "int": node = int.Parse(element.InnerText); break;
-						case "long": node = long.Parse(element.InnerText); break;
-						case "float": node = float.Parse(element.InnerText); break;
-						case "double": node = double.Parse(element.InnerText); break;
-						case "bytes": node = StringToByteArray(element.InnerText); break;
-						case "string": node = element.InnerText; break;
-					case "list":
-						if (element.Name!="list") { throw new FormatException("List expected."); }
-						node = new Node.List();
-						foreach (XmlNode n in element.ChildNodes) {
-							if (n is XmlElement) {
-								string s;
-								node += XmlElementToNode((XmlElement)n,out s);
-							} else { throw new FormatException("XmlElement expected."); }
-						} break;
-					case "compound":
-						if (element.Name!="compound") { throw new FormatException("Compound expected."); }
-						node = new Node.Compound();
-						foreach (XmlNode n in element.ChildNodes) {
-							if (n is XmlElement) {
-								string s;
-								Node child = XmlElementToNode((XmlElement)n,out s);
-								if (s==null) { throw new FormatException("Name attribute required."); }
-								node[s] = child;
-							} else { throw new FormatException("XmlElement expected."); }
-						} break;
-				}
-			} catch (FormatException e) { throw e; }
-			catch (Exception e) { throw new FormatException("Could not parse value to "+element.Name+".",e); }
-			if (element.HasAttribute("name")) { name = element.GetAttribute("name"); }
-			else { name = null; }
-			return node;
-		}
-		private XmlElement NodeToXmlElement(XmlDocument doc,Node node,string name) {
-			if (!Supports(node.Type)) { throw new FormatException("XmlHost doesn't support "+node.Type+"."); }
-			string type = names[((IList<Type>)supported).IndexOf(node.Type)];
-			XmlElement element = doc.CreateElement(type);
-			if (name!=null) { element.SetAttribute("name",name); }
-			switch (type) {
-				case "bytes":
-					element.InnerText = ByteArrayToString((byte[])node);
-					break;
+		private Node ElementToNode(XElement element) {
+			Node node = new Node();
+			switch (element.Name.LocalName) {
+					case "bool": node.Value = bool.Parse(element.Value); break;
+					case "byte": node.Value = byte.Parse(element.Value); break;
+					case "short": node.Value = short.Parse(element.Value); break;
+					case "int": node.Value = int.Parse(element.Value); break;
+					case "long": node.Value = long.Parse(element.Value); break;
+					case "float": node.Value = float.Parse(element.Value); break;
+					case "double": node.Value = double.Parse(element.Value); break;
+					case "string": node.Value = element.Value; break;
 				case "list":
-					if (node.Count!=0) {
-						foreach (Node n in (Node.List)node) {
-							element.AppendChild(NodeToXmlElement(doc,n,null));
-						}
-					} break;
-				case "compound":
-					foreach (KeyValuePair<string,Node> kvp in (Node.Compound)node)
-						element.AppendChild(NodeToXmlElement(doc,kvp.Value,kvp.Key));
+					foreach (XElement e in element.Elements())
+						node.Add(ElementToNode(e));
 					break;
-					default: element.InnerText = node.ToString(); break;
-			} return element;
+				case "compound":
+					foreach (XElement e in element.Elements())
+						node[GetElementName(e)] = ElementToNode(e);
+					break;
+				default:
+					throw new FormatException("Can't parse '"+element.Name.LocalName+"'.");
+			} return node;
 		}
 		
-		private string ByteArrayToString(byte[] array) {
-			StringBuilder hex = new StringBuilder(array.Length*2);
-			foreach (byte b in array) { hex.AppendFormat("{0:x2}",b); }
-			return hex.ToString();
+		private XElement NodeToElement(Node node) {
+			int index = ((IList<Type>)supported).IndexOf(node.Value.GetType());
+			switch (index) {
+				case 8:
+					XElement list = new XElement("list");
+					foreach (Node n in (List<Node>)node.Value) {
+						if (n.Value==null) { continue; }
+						list.Add(NodeToElement(n));
+					} return list;
+				case 9:
+					XElement compound = new XElement("compound");
+					foreach (KeyValuePair<string,Node> kvp in (Dictionary<string,Node>)node.Value) {
+						if (kvp.Value.Value==null) { continue; }
+						XElement e = NodeToElement(kvp.Value);
+						e.SetAttributeValue("name",kvp.Key);
+						compound.Add(e);
+					} return compound;
+					default: return new XElement(names[index],node.Value);
+			}
 		}
-		private byte[] StringToByteArray(string hex) {
-			int count = hex.Length/2;
-			byte[] bytes = new byte[count];
-			for (int i=0;i<count;i++) { bytes[i] = Convert.ToByte(hex.Substring(i*2,2),16); }
-			return bytes;
+		
+		private Type ListType(List<Node> list) {
+			Type type = null;
+			foreach (Node n in list) {
+				if (n.Value==null) { continue; }
+				if (type==null) { type = n.Value.GetType(); continue; }
+				if (type!=n.Value.GetType())
+					throw new Exception("List<Node> musn't contain different types of values.");
+			} return type;
 		}
 	}
 }

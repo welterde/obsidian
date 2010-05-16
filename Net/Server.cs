@@ -20,6 +20,7 @@ namespace obsidian.Net {
 		private string name = "Custom Minecraft server";
 		private string motd = "Welcome to my custom Minecraft server!";
 		private ushort port = 25565;
+		private bool listed = false;
 		private string mainLevel = null;
 		internal byte maxPlayers = 16;
 		internal readonly int salt = new Random().Next();
@@ -59,6 +60,10 @@ namespace obsidian.Net {
 				if (listener.Running) { throw new Exception("Change port while server is running."); }
 				port = value;
 			}
+		}
+		public bool Public {
+			get { return listed; }
+			set { listed = value; }
 		}
 		public string MainLevel {
 			get { return mainLevel; }
@@ -125,7 +130,8 @@ namespace obsidian.Net {
 				Log("Error: Server creation failed, port {0} already in use?",port);
 				return false;
 			} Log("Server is running on port {0}.",port);
-			InitializedEvent();
+			try { InitializedEvent(); }
+			catch (Exception e) { lua.Error(e); return false; }
 			heartbeat.Start(1000*55);
 			if (heartbeat.Send()) {
 				File.WriteAllText("externalurl.txt",heartbeat.url);
@@ -171,9 +177,7 @@ namespace obsidian.Net {
 				Thread.Sleep(30);
 				try {
 					foreach (Body body in new List<Body>(level.Bodies)) { body.Update(); }
-					if (++counter>=6) {
-						foreach (Region region in new List<Region>(level.Regions)) { region.Update(); }
-					}
+					if (++counter>=6) foreach (Region region in new List<Region>(level.Regions)) { region.Update(); }
 				} catch (Exception e) { lua.Error(e); }
 			}
 		}

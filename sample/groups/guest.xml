@@ -13,4 +13,5 @@
     <string>abort</string>
     <string>spawn</string>
   </list>
+  <compound name="custom" />
 </compound>

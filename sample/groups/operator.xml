@@ -24,4 +24,10 @@
     <string>guest</string>
     <string>save</string>
   </list>
+  <compound name="custom">
+    <list name="changegroup">
+      <string>guest</string>
+      <string>trusted</string>
+    </list>
+  </compound>
 </compound>

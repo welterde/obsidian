@@ -19,8 +19,8 @@ Command("trusted","<name>","Changes the group of a player to trusted.",
       Message("&e"..target.Name.." already is in this group."):Send(player)
 	  return
 	end
-    if target.Group == owner or (target.Group == admin and player.Group ~= owner) or
-       (target.Group == operator and player.Group == operator) then
+    local node = player.Group.Custom["changegroup"]
+    if node and not node:Contains(target.Group.Name) then
       Message("&eYou can't change the group of an "..target.Group.Name.."."):Send(player)
 	  return
 	end

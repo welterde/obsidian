@@ -13,6 +13,7 @@ namespace obsidian.World {
 		internal Account account;
 		private OnlineStatus status = OnlineStatus.Connected;
 		private string quitMessage = null;
+		private bool destroyAdminium = false;
 		#endregion
 		
 		#region Public members
@@ -32,6 +33,15 @@ namespace obsidian.World {
 		public string IP {
 			get { return helper.IPEndPoint.Address.ToString(); }
 		}
+		public bool DestroyAdminium {
+			get { return destroyAdminium; }
+			set {
+				if (destroyAdminium==value) { return; }
+				destroyAdminium = value;
+				if (destroyAdminium) { Protocol.OptionPacket(100).Send(this); }
+				else { Protocol.OptionPacket(0).Send(this); }
+			}
+		}
 		#endregion
 			
 		#region Events
@@ -41,7 +51,7 @@ namespace obsidian.World {
 		internal event Action<Player,BlockArgs> InternalBlockEvent = delegate {  };
 		public event Action<Player> ReadyEvent = delegate {  };
 		public event Action<Player,string> DisconnectedEvent = delegate {  };
-		public event Action<Player,BlockArgs> BlockEvent = delegate {  };
+		public event Action<Player,BlockArgs,byte> BlockEvent = delegate {  };
 		#endregion
 		
 		internal Player(Server server,Protocol helper) {
@@ -81,11 +91,14 @@ namespace obsidian.World {
 			if (y==level.Depth) { return; }
 			if (x>=level.Width || y>=level.Depth || z>=level.Height) {
 				new Message("&eInvalid block position.").Send(this); return;
-			} if (action==0) { type = 0x00; }
+			} byte block = type;
+			if (action==0) { block = 0x00; }
 			byte before = level.GetBlock(x,y,z);
-			if (before==type) { return; }
-			BlockArgs args = new BlockArgs(this,x,y,z,type);
-			try { BlockEvent(this,args); }
+			if (before==block) { return; }
+			if (before==Blocktype.adminium.ID && !destroyAdminium) {
+				new Message("&eYou can't destroy adminium.").Send(this); return;
+			} BlockArgs args = new BlockArgs(this,x,y,z,block);
+			try { BlockEvent(this,args,type); }
 			catch (Exception e) { server.lua.Error(e); }
 			InternalBlockEvent(this,args);
 		}

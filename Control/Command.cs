@@ -116,15 +116,15 @@ namespace obsidian.Control {
 			
 			internal List<Command> LoadPermissionList(Node node) {
 				List<Command> cmds = new List<Command>();
-				foreach (Node n in (Node.List)node) {
-					Command command = this[(string)n];
+				foreach (Node n in (List<Node>)node.Value) {
+					Command command = this[(string)n.Value];
 					if (command!=null) { cmds.Add(command); }
 				} return cmds;
 			}
 			internal static Node SavePermissionList(List<Command> cmds) {
-				Node node = new Node.List();
+				Node node = new Node();
 				foreach (Command command in cmds) {
-					node += command.name;
+					node.Add(new Node(command.name));
 				} return node;
 			}
 		}

@@ -20,6 +20,8 @@
     <string>create portalbutton</string>
     <string>destroy</string>
     <string>cuboid</string>
+    <string>show</string>
+    <string>hide</string>
     <string>kick</string>
     <string>admin</string>
     <string>op</string>
@@ -28,7 +30,14 @@
     <string>lua</string>
     <string>reload</string>
     <string>save</string>
-    <string>mimic</string>
     <string>dummy</string>
   </list>
+  <compound name="custom">
+    <list name="changegroup">
+      <string>guest</string>
+      <string>trusted</string>
+      <string>operator</string>
+      <string>admin</string>
+    </list>
+  </compound>
 </compound>

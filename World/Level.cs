@@ -8,7 +8,7 @@ using obsidian.Utility;
 
 namespace obsidian.World {
 	public class Level {
-		private static IDataHost host = new NbtHost();
+		private static DataHost host = NbtHost.Instance;
 		
 		#region Members
 		private short width;
@@ -20,7 +20,7 @@ namespace obsidian.World {
 		internal List<Player> players = new List<Player>();
 		internal List<Region> regions = new List<Region>();
 		private Position spawn;
-		private Node custom = new Node.Compound();
+		private Node custom;
 		
 		internal byte this[int x,int y,int z] {
 			get { return mapdata[x+z*width+y*width*height]; }
@@ -62,8 +62,6 @@ namespace obsidian.World {
 		#endregion
 		
 		public event EventHandler<BlockArgs> BlockEvent = delegate {  };
-		public event Action LoadEvent = delegate {  };
-		public event Action SaveEvent = delegate {  };
 		
 		public Level(short width,short depth,short height) {
 			this.width = width;
@@ -78,13 +76,14 @@ namespace obsidian.World {
 		public byte GetBlock(short x,short y,short z) {
 			return this[x,y,z];
 		}
-		public void SetBlock(Player player,short x,short y,short z,byte type) {
-			if (this[x,y,z]==type) { return; }
+		public bool SetBlock(Player player,short x,short y,short z,byte type) {
+			if (this[x,y,z]==type) { return false; }
 			BlockArgs e = new BlockArgs(player,x,y,z,type);
 			BlockEvent(this,e);
-			if (e.Abort) { return; }
+			if (e.Abort) { return false; }
 			this[x,y,z] = type;
 			Protocol.BlockPacket(x,y,z,type).Send(this);
+			return true;
 		}
 		internal void PlayerSetBlock(BlockArgs e) {
 			byte before = this[e.X,e.Y,e.Z];
@@ -146,22 +145,21 @@ namespace obsidian.World {
 			try {
 				Node node = host.Load(filename,out name);
 				if (name!="obsidian-level") { return null; }
-				short width = (short)node["width"];
-				short depth = (short)node["depth"];
-				short height = (short)node["height"];
+				short width = (short)node["width"].Value;
+				short depth = (short)node["depth"].Value;
+				short height = (short)node["height"].Value;
 				Node spawnNode = node["spawn"];
 				Position spawn = new Position(
-					(short)spawnNode["x"],(short)spawnNode["y"],(short)spawnNode["z"],
-					(byte)spawnNode["rotx"],(byte)spawnNode["roty"]);
-				byte[] mapdata = (byte[])node["mapdata"];
-				byte[] blockdata = (byte[])node["blockdata"];
-				Node.Compound custom = (Node.Compound)node["custom"];
+					(short)spawnNode["x"].Value,(short)spawnNode["y"].Value,(short)spawnNode["z"].Value,
+					(byte)spawnNode["rotx"].Value,(byte)spawnNode["roty"].Value);
+				byte[] mapdata = (byte[])node["mapdata"].Value;
+				byte[] blockdata = (byte[])node["blockdata"].Value;
+				Node custom = node["custom"]??new Node();
 				Level level = new Level(width,depth,height);
 				level.spawn.Set(spawn);
 				level.mapdata = mapdata;
 				level.blockdata = blockdata;
 				level.custom = custom;
-				level.LoadEvent();
 				return level;
 			} catch { return null; }
 		}
@@ -170,20 +168,19 @@ namespace obsidian.World {
 			if (name=="") { throw new ArgumentException("Name musn't be an empty string.","name"); }
 			if (!RegexHelper.IsAlphaNumeric(name)) {
 				throw new ArgumentException("Only alphanumerical characters allowed.","name");
-			} SaveEvent();
-			Node node = new Node.Compound();
-			node["width"] = (short)width;
-			node["depth"] = (short)depth;
-			node["height"] = (short)height;
-			Node spawnNode = new Node.Compound();
-			spawnNode["x"] = (short)spawn.X;
-			spawnNode["y"] = (short)spawn.Y;
-			spawnNode["z"] = (short)spawn.Z;
-			spawnNode["rotx"] = spawn.RotX;
-			spawnNode["roty"] = spawn.RotY;
+			} Node node = new Node();
+			node["width"] = new Node(width);
+			node["depth"] = new Node(depth);
+			node["height"] = new Node(height);
+			Node spawnNode = new Node();
 			node["spawn"] = spawnNode;
-			node["mapdata"] = mapdata;
-			node["blockdata"] = blockdata;
+			spawnNode["x"] = new Node((short)spawn.X);
+			spawnNode["y"] = new Node((short)spawn.Y);
+			spawnNode["z"] = new Node((short)spawn.Z);
+			spawnNode["rotx"] = new Node(spawn.RotX);
+			spawnNode["roty"] = new Node(spawn.RotY);
+			node["mapdata"] = new Node(mapdata);
+			node["blockdata"] = new Node(blockdata);
 			node["custom"] = custom;
 			host.Save("levels/"+name+".lvl",node,"obsidian-level");
 		}

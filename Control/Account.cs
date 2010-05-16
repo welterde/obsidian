@@ -6,7 +6,7 @@ using obsidian.Data;
 
 namespace obsidian.Control {
 	public class Account {
-		private static IDataHost host = new XmlHost();
+		private static DataHost host = XmlHost.Instance;
 		
 		#region Members
 		private readonly string name;
@@ -18,7 +18,7 @@ namespace obsidian.Control {
 		private DateTime lastLogout = DateTime.MinValue;
 		private string lastIP = null;
 		private DateTime fileModified = DateTime.MinValue;
-		private Node custom = new Node.Compound();
+		private Node custom;
 		#endregion
 		
 		#region Public members
@@ -65,34 +65,36 @@ namespace obsidian.Control {
 				string rootName;
 				Node node = host.Load(filename,out rootName);
 				if (rootName!="account") { return null; }
-				string n = (string)node["name"];
+				string n = (string)node["name"].Value;
 				if (n.ToLower()!=name.ToLower()) { return null; }
-				Group group = groups[(string)node["group"]];
+				Group group = groups[(string)node["group"].Value];
 				if (group==null) { return null; }
 				Account account = new Account(n);
 				Node statistics = node["statistics"];
 				account.group = group;
-				account.logins = (int)statistics["logins"];
-				account.total = TimeSpan.Parse((string)statistics["total"]);
-				account.lastLogin = DateTime.Parse((string)statistics["lastLogin"]);
-				account.lastLogout = DateTime.Parse((string)statistics["lastLogout"]);
-				account.lastIP = (string)statistics["lastIP"];
+				account.logins = (int)statistics["logins"].Value;
+				account.total = TimeSpan.Parse((string)statistics["total"].Value);
+				account.lastLogin = DateTime.Parse((string)statistics["lastLogin"].Value);
+				account.lastLogout = DateTime.Parse((string)statistics["lastLogout"].Value);
+				account.lastIP = (string)statistics["lastIP"].Value;
 				account.fileModified = File.GetLastWriteTime(filename);
-				account.custom = (Node.Compound)node["custom"];
+				account.custom = node["custom"]??new Node();
 				return account;
 			} catch { return null; }
 		}
 		public void Save() {
-			Node node = new Node.Compound();
-			node["name"] = name;
-			node["group"] = group.Name;
-			Node statistics = node["statistics"];
-			statistics["logins"] = logins;
-			statistics["total"] = total.ToString();
-			statistics["lastLogin"] = lastLogin.ToString();
-			statistics["lastLogout"] = lastLogout.ToString();
-			statistics["lastIP"] = lastIP;
+			Node node = new Node();
+			node["name"] = new Node(name);
+			node["group"] = new Node(group.Name);
+			Node statistics = new Node();
+			node["statistics"] = statistics;
+			statistics["logins"] = new Node(logins);
+			statistics["total"] = new Node(total.ToString());
+			statistics["lastLogin"] = new Node(lastLogin.ToString());
+			statistics["lastLogout"] = new Node(lastLogout.ToString());
+			statistics["lastIP"] = new Node(lastIP);
 			node["custom"] = custom;
+			if (!Directory.Exists("accounts")) { Directory.CreateDirectory("accounts"); }
 			host.Save("accounts/"+name+"."+host.Extension,node,"account");
 		}
 		

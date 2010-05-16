@@ -6,6 +6,7 @@ using System.Text;
 using obsidian.World;
 
 namespace obsidian.Net {
+	// Can't touch this. Duu du du dum.. what?
 	public class Protocol {
 		internal const byte version = 7;
 		

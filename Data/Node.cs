@@ -3,112 +3,102 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace obsidian.Data {
-	public class Node : IEnumerable<Node> {
+	public class Node {
 		private object value;
 		
-		public Type Type {
-			get { return value.GetType(); }
+		public object Value {
+			get { return value; }
+			set { this.value = value; }
 		}
 		public int Count {
-			get {
-				if (IsList()) { return AsList().Count; }
-				else if (IsCompound()) { return AsCompound().Count; }
-				else { return -1; }
-			}
+			get { return GetCount(); }
 		}
-		public Node this[int index] {
-			get { return AsList()[index]; }
-			set { AsList()[index] = value; }
-		}
-		public Node this[string key] {
-			get {
-				Compound c = AsCompound();
-				if (c.ContainsKey(key)) { return c[key]; }
-				else {
-					Node node = new Node();
-					this[key] = node;
-					return node;
-				}
-			}
-			set {
-				if (IsNull()) { this.value = new Compound(); }
-				Compound c = AsCompound();
-				if (c.ContainsKey(key)) { c[key] = value; }
-				else { c.Add(key,value); }
-			}
+		public Node this[object index] {
+			get { return GetIndex(index); }
+			set { SetIndex(index,value); }
 		}
 		
-		private Node() : this(null) {  }
-		private Node(object value) { this.value = value; }
-		
-		public void Remove(Node node) { AsList().Remove(node); }
-		public void RemoveAt(int index) { AsList().RemoveAt(index); }
-		public void Remove(string key) { AsCompound().Remove(key); }
-		
-		private T As<T>() {
-			if (!Is<T>()) { throw new InvalidCastException("Trying to cast from "+value.GetType()+" to "+typeof(T)+"."); }
-			return (T)value;
-		}
-		private bool AsBool() { return As<bool>(); }
-		private byte AsByte() { return As<byte>(); }
-		private short AsShort() { return As<short>(); }
-		private int AsInt() { return As<int>(); }
-		private long AsLong() { return As<long>(); }
-		private float AsFloat() { return As<float>(); }
-		private double AsDouble() { return As<double>(); }
-		private byte[] AsBytes() { return As<byte[]>(); }
-		private string AsString() { return As<string>(); }
-		private List AsList() { return As<List>(); }
-		private Compound AsCompound() { return As<Compound>(); }
-		
-		private bool Is<T>() { return (value is T); }
-		public bool IsBool() { return Is<bool>(); }
-		public bool IsByte() { return Is<byte>(); }
-		public bool IsShort() { return Is<short>(); }
-		public bool IsInt() { return Is<int>(); }
-		public bool IsLong() { return Is<long>(); }
-		public bool IsFloat() { return Is<float>(); }
-		public bool IsDouble() { return Is<double>(); }
-		public bool IsBytes() { return Is<byte[]>(); }
-		public bool IsString() { return Is<string>(); }
-		public bool IsList() { return Is<List>(); }
-		public bool IsCompound() { return Is<Compound>(); }
-		public bool IsNull() { return (value==null); }
-		
-		public IEnumerator<Node> GetEnumerator() { return AsList().GetEnumerator(); }
-		IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
-		public override string ToString() { return value.ToString(); }
-		
-		public static Node operator +(Node left,Node right) {
-			if (left.IsNull()) { left.value = new List(); }
-			left.AsList().Add(right); return left;
+		public Node() : this(null) {  }
+		public Node(object value) {
+			this.value = value;
 		}
 		
-		public static explicit operator bool(Node node) { return node.AsBool(); }
-		public static explicit operator byte(Node node) { return node.AsByte(); }
-		public static explicit operator short(Node node) { return node.AsShort(); }
-		public static explicit operator int(Node node) { return node.AsInt(); }
-		public static explicit operator long(Node node) { return node.AsLong(); }
-		public static explicit operator float(Node node) { return node.AsFloat(); }
-		public static explicit operator double(Node node) { return node.AsDouble(); }
-		public static explicit operator byte[](Node node) { return node.AsBytes(); }
-		public static explicit operator string(Node node) { return node.AsString(); }
-		public static explicit operator List(Node node) { return node.AsList(); }
-		public static explicit operator Compound(Node node) { return node.AsCompound(); }
+		public void Add(Node value) {
+			if (value==null) { throw new ArgumentNullException("node"); }
+			if (this.value==null) { this.value = new List<Node>(); }
+			List<Node> list = this.value as List<Node>;
+			if (list==null) { throw new Exception("Value isn't a List<Node>."); }
+			list.Add(value);
+		}
+		public bool Contains(object value) {
+			List<Node> list = this.value as List<Node>;
+			if (list==null) { throw new Exception("Value isn't a List<Node>."); }
+			foreach (Node node in list) {
+				if (node.value==null) {
+					if (value==null) { return true; }
+					continue;
+				} if (node.value.Equals(value)) { return true; }
+			} return false;
+		}
 		
-		public static implicit operator Node(bool value) { return new Node(value); }
-		public static implicit operator Node(byte value) { return new Node(value); }
-		public static implicit operator Node(short value) { return new Node(value); }
-		public static implicit operator Node(int value) { return new Node(value); }
-		public static implicit operator Node(long value) { return new Node(value); }
-		public static implicit operator Node(float value) { return new Node(value); }
-		public static implicit operator Node(double value) { return new Node(value); }
-		public static implicit operator Node(byte[] value) { return new Node(value); }
-		public static implicit operator Node(string value) { return new Node(value); }
-		public static implicit operator Node(List value) { return new Node(value); }
-		public static implicit operator Node(Compound value) { return new Node(value); }
+		public void ListForeach(Action<Node> action) {
+			List<Node> list = this.value as List<Node>;
+			if (list==null) { throw new Exception("Value isn't a List<Node>."); }
+			foreach (Node node in list) { action(node); }
+		}
+		public void DictForeach(Action<string,Node> action) {
+			Dictionary<string,Node> dict = this.value as Dictionary<string,Node>;
+			if (dict==null) { throw new Exception("Value isn't a Dictionary<string,Node>."); }
+			foreach (KeyValuePair<string,Node> kvp in dict) { action(kvp.Key,kvp.Value); }
+		}
 		
-		public class List : List<Node> {  }
-		public class Compound : Dictionary<string,Node> {  }
+		private Node GetIndex(object index) {
+			if (index==null) { throw new ArgumentNullException("index"); }
+			if (index is string) { return DictGet((string)index); }
+			if (index is IConvertible) { return ListGet(Convert.ToInt32(index)); }
+			throw new ArgumentException("Indexer isn't string or int compatible.","index");
+		}
+		private void SetIndex(object index,Node value) {
+			if (index==null) { throw new ArgumentNullException("index"); }
+			if (value==null) { throw new ArgumentNullException("value"); }
+			if (index is string) { DictSet((string)index,value); return; }
+			if (index is IConvertible) { ListSet(Convert.ToInt32(index),value); return; }
+			throw new ArgumentException("Indexer isn't string or int compatible.","index");
+		}
+		
+		private int GetCount() {
+			ICollection coll = (value as ICollection);
+			if (coll==null) { return -1; }
+			return coll.Count;
+		}
+		
+		private Node DictGet(string key) {
+			if (value==null) { return null; }
+			Dictionary<string,Node> dict = this.value as Dictionary<string,Node>;
+			if (dict==null) { throw new Exception("Value isn't a Dictionary<string,Node>."); }
+			if (!dict.ContainsKey(key)) { return null; }
+			return dict[key];
+		}
+		private void DictSet(string key,Node value) {
+			if (this.value==null) { this.value = new Dictionary<string,Node>(StringComparer.OrdinalIgnoreCase); }
+			Dictionary<string,Node> dict = this.value as Dictionary<string,Node>;
+			if (dict==null) { throw new Exception("Value isn't a Dictionary<string,Node>."); }
+			if (!dict.ContainsKey(key)) { dict.Add(key,value); }
+			else { dict[key] = value; }
+		}
+		
+		private Node ListGet(int index) {
+			List<Node> list = value as List<Node>;
+			if (list==null) { throw new Exception("Value isn't a List<Node>."); }
+			if (index<0 || index>=list.Count) { throw new ArgumentOutOfRangeException("index"); }
+			return list[index];
+		}
+		private void ListSet(int index,Node value) {
+			if (this.value==null && index==0) { this.value = new List<Node>(); }
+			List<Node> list = this.value as List<Node>;
+			if (list==null) { throw new Exception("Value isn't a List<Node>."); }
+			if (index<0 || index>=list.Count) { throw new ArgumentOutOfRangeException("index"); }
+			else { list[index] = value; }
+		}
 	}
 }

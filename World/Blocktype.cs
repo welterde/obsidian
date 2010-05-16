@@ -121,7 +121,7 @@ namespace obsidian.World {
 			return type;
 		}
 		
-		public static Blocktype FindById(int id) {
+		public static Blocktype FindById(byte id) {
 			if (id>Count) { return null; }
 			return blocktypes[id];
 		}

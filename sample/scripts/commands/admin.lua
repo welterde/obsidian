@@ -19,7 +19,8 @@ Command("admin","<name>","Changes the group of a player to admin.",
       Message("&e"..target.Name.." already is in this group."):Send(player)
 	  return
 	end
-    if target.Group == owner then
+    local node = player.Group.Custom["changegroup"]
+    if node and not node:Contains(target.Group.Name) then
       Message("&eYou can't change the group of an "..target.Group.Name.."."):Send(player)
 	  return
 	end

@@ -1,12 +1,11 @@
 luanet.load_assembly("obsidian")
 Message = luanet.import_type("obsidian.Net.Message")
 Region = luanet.import_type("obsidian.World.Region")
-Teleporter = luanet.import_type("obsidian.World.Objects.Teleporter")
 Portal = luanet.import_type("obsidian.World.Objects.Portal")
-Button = luanet.import_type("obsidian.World.Objects.StateButton")
-Blocktype = luanet.import_type("obsidian.World.Blocktype")
 Body = luanet.import_type("obsidian.World.Body")
-Mimic = luanet.import_type("obsidian.World.NPCs.Mimic")
+Blocktype = luanet.import_type("obsidian.World.Blocktype")
+Node = luanet.import_type("obsidian.Data.Node")
+
 Command = function(name,syntax,help,func)
   server.Commands:Create(name,syntax,help,func)
 end

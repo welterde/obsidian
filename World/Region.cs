@@ -8,6 +8,7 @@ namespace obsidian.World {
 		private readonly Level level;
 		private readonly List<Body> inside = new List<Body>();
 		private int x1,y1,z1,x2,y2,z2;
+		private object tag;
 		#endregion
 		
 		#region Public Members
@@ -55,6 +56,10 @@ namespace obsidian.World {
 		}
 		public Position Center {
 			get { return new Position(x1*32+Width*16,y1*32+Depth*16,z1*32+Height*16,0,0); }
+		}
+		public object Tag {
+			get { return tag; }
+			set { tag = value; }
 		}
 		#endregion
 		

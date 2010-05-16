@@ -30,14 +30,22 @@ namespace obsidian.Control {
 		}
 		
 		internal void Error(Exception e) {
-			if (errorLog!=null) {
+			string shortMsg = "Error: "+e.Message.Split(new char[1]{'\n'},2)[0];
+			string longMsg = "Error: "+e;
+			if (e is LuaScriptException) {
+				LuaScriptException ex = (LuaScriptException)e;
+				if (ex.IsNetException) { e = e.InnerException; }
+				shortMsg = "Error in "+ex.Source+e.Message.Split(new char[1]{'\n'},2)[0];
+				longMsg = "Error in "+ex.Source+e;
+			} if (errorLog!=null) {
 				File.AppendAllText(errorLog,e.ToString()+"\n");
-				server.Log("Error: "+e.Message);
+				server.Log(shortMsg);
 			} else { server.Log("Error: "+e); }
 			if (server.Level!=null) {
-				new Message("&eError: "+e.Message).Send(server);
+				new Message("&e"+shortMsg).Send(server);
 			}
 		}
+		
 		
 		public bool Is(object value,string type) {
 			if (value==null) { return false; }

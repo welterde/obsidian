@@ -3,94 +3,102 @@ using System.Collections.Generic;
 using NamedBinaryTag;
 
 namespace obsidian.Data {
-	internal class NbtHost : IDataHost {
-		private Type[] supported = new Type[10]{
+	public class NbtHost : DataHost {
+		private static NbtHost instance = new NbtHost();
+		private static Type[] supported = new Type[10]{
 			typeof(byte),typeof(short),typeof(int),typeof(long),typeof(float),typeof(double),
-			typeof(byte[]),typeof(string),typeof(Node.List),typeof(Node.Compound)};
-		private string[] names = new string[10]{
-			"byte","short","int","long","float","double",
-			"byte[]","string","list","compound"};
-		private Type[] tagType = new Type[10]{
-			typeof(TagByte),typeof(TagShort),typeof(TagInt),typeof(TagLong),typeof(TagFloat),typeof(double),
-			typeof(TagByteArray),typeof(TagString),typeof(TagList),typeof(TagCompound)};
+			typeof(byte[]),typeof(string),typeof(List<Node>),typeof(Dictionary<string,Node>) };
 		
-		public string Extension {
+		public static NbtHost Instance {
+			get { return instance; }
+		}
+		
+		protected override Type[] Supported {
+			get { return supported; }
+		}
+		public override string Extension {
 			get { return "nbt"; }
 		}
-		public bool Supports(Type type) {
-			return ((IList<Type>)supported).Contains(type);
+		
+		private NbtHost() {  }
+		
+		protected override void CheckName(string name) {  }
+		protected override void CheckNode(Node node) {
+			List<Node> list = node.Value as List<Node>;
+			if (list!=null) { ListType(list); }
 		}
 		
-		public Node Load(string filename,out string name) {
-			TagCompound compound;
-			try {
-				compound = new TagCompound();
-				compound.Load(filename,out name);
-			} catch (Exception e) { throw new FormatException("Could not load or parse '"+filename+"'.",e); }
-			return TagToNode(compound);
+		public override Node Load(string filename,out string name) {
+			if (filename==null) { throw new ArgumentNullException("filename"); }
+			TagCompound root = new TagCompound();
+			root.Load(filename,out name);
+			return TagToNode(root);
 		}
-		public void Save(string filename,Node root,string name) {
-			if (!root.IsCompound()) { throw new FormatException("Root node isn't compound."); }
+		public override void Save(string filename,Node root,string name) {
+			if (filename==null) { throw new ArgumentNullException("filename"); }
+			if (root==null) { throw new ArgumentNullException("root"); }
+			if (name==null) { throw new ArgumentNullException("name"); }
+			Check(root,new LinkedList<Node>());
 			((TagCompound)NodeToTag(root)).Save(filename,name);
 		}
 		
 		private Node TagToNode(Tag tag) {
-			Node node = null;
+			Node node = new Node();
 			switch (tag.GetId()) {
-				case 1: node = (byte)tag; break;
-				case 2: node = (short)tag; break;
-				case 3: node = (int)tag; break;
-				case 4: node = (long)tag; break;
-				case 5: node = (float)tag; break;
-				case 6: node = (double)tag; break;
-				case 7: node = (byte[])tag; break;
-				case 8: node = (string)tag; break;
+				case 1: node.Value = (byte)tag; break;
+				case 2: node.Value = (short)tag; break;
+				case 3: node.Value = (int)tag; break;
+				case 4: node.Value = (long)tag; break;
+				case 5: node.Value = (float)tag; break;
+				case 6: node.Value = (double)tag; break;
+				case 7: node.Value = (byte[])tag; break;
+				case 8: node.Value = (string)tag; break;
 				case 9:
-					node = new Node.List();
-					foreach (Tag t in (TagList)tag) {
-						node += TagToNode(t);
-					} break;
+					foreach (Tag t in (TagList)tag)
+						node.Add(TagToNode(t));
+					break;
 				case 10:
-					node = new Node.Compound();
-					foreach (KeyValuePair<string,Tag> kvp in (TagCompound)tag) {
+					foreach (KeyValuePair<string,Tag> kvp in (TagCompound)tag)
 						node[kvp.Key] = TagToNode(kvp.Value);
-					} break;
+					break;
 			} return node;
 		}
+		
 		private Tag NodeToTag(Node node) {
-			if (!Supports(node.Type)) { throw new FormatException("NbtHost doesn't support "+node.Type.ToString()+"."); }
-			Tag tag = null;
-			switch (((IList<Type>)supported).IndexOf(node.Type)) {
-				case 0: tag = (TagByte)(byte)node; break;
-				case 1: tag = (TagShort)(short)node; break;
-				case 2: tag = (TagInt)(int)node; break;
-				case 3: tag = (TagLong)(long)node; break;
-				case 4: tag = (TagFloat)(float)node; break;
-				case 5: tag = (TagDouble)(double)node; break;
-				case 6: tag = (TagByteArray)(byte[])node; break;
-				case 7: tag = (TagString)(string)node; break;
+			switch (((IList<Type>)supported).IndexOf(node.Value.GetType())) {
+				case 0: return new TagByte((byte)node.Value);
+				case 1: return new TagShort((short)node.Value);
+				case 2: return new TagInt((int)node.Value);
+				case 3: return new TagLong((long)node.Value);
+				case 4: return new TagFloat((float)node.Value);
+				case 5: return new TagDouble((double)node.Value);
+				case 6: return new TagByteArray((byte[])node.Value);
+				case 7: return new TagString((string)node.Value);
 				case 8:
-					TagList list = new TagList(ListTagType(node)??typeof(TagByte));
-					try {
-						foreach (Node n in (Node.List)node) {
-							if (n.IsNull()) { continue; }
-							list.Add(NodeToTag(n));
-						}
-					} catch { throw new FormatException("List musn't contain different node types."); }
-					tag = list;
-					break;
+					List<Node> l = (List<Node>)node.Value;
+					TagList list = new TagList(ListType(l)??typeof(TagByte));
+					foreach (Node n in l) {
+						if (n.Value==null) { continue; }
+						list.Add(NodeToTag(n));
+					} return list;
 				case 9:
 					TagCompound compound = new TagCompound();
-					foreach (KeyValuePair<string,Node> kvp in (Node.Compound)node) {
+					foreach (KeyValuePair<string,Node> kvp in (Dictionary<string,Node>)node.Value) {
+						if (kvp.Value.Value==null) { continue; }
 						compound.Add(kvp.Key,NodeToTag(kvp.Value));
-					} tag = compound;
-					break;
-			} return tag;
+					} return compound;
+			} return null;
 		}
 		
-		private Type ListTagType(Node node) {
-			if (node.Count==0) { return null; }
-			else { return tagType[((IList<Type>)supported).IndexOf(node[0].Type)]; }
+		private Type ListType(List<Node> list) {
+			Type type = null;
+			foreach (Node n in list) {
+				if (n.Value==null) { continue; }
+				Type t = n.Value.GetType();
+				t = Tag.FromId((byte)(((IList<Type>)supported).IndexOf(t)+1));
+				if (type==null) { type = t; continue; }
+				if (type!=t) { throw new Exception("List<Node> musn't contain different types of values."); }
+			} return type;
 		}
 	}
 }

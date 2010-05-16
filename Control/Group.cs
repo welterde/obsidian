@@ -7,7 +7,7 @@ using obsidian.Data;
 
 namespace obsidian.Control {
 	public class Group {
-		private static IDataHost host = new XmlHost();
+		private static DataHost host = XmlHost.Instance;
 		
 		#region Members
 		private readonly string name;
@@ -15,6 +15,7 @@ namespace obsidian.Control {
 		private string prefix = "";
 		private string postfix = "";
 		private List<Command> commands = new List<Command>();
+		private Node custom;
 		#endregion
 		
 		#region Public members
@@ -35,6 +36,9 @@ namespace obsidian.Control {
 		public List<Command> Commands {
 			get { return commands; }
 		}
+		public Node Custom {
+			get { return custom; }
+		}
 		#endregion
 		
 		private Group(string name) {
@@ -47,23 +51,25 @@ namespace obsidian.Control {
 				string rootName;
 				Node node = host.Load(filename,out rootName);
 				if (rootName!="group") { return null; }
-				string n = (string)node["name"];
+				string n = (string)node["name"].Value;
 				if (n.ToLower()!=name.ToLower()) { return null; }
 				Group group = new Group(n);
-				group.standard = bool.Parse((string)node["standard"]);
-				group.prefix = (string)node["prefix"];
-				group.postfix = (string)node["postfix"];
+				group.standard = bool.Parse((string)node["standard"].Value);
+				group.prefix = (string)node["prefix"].Value;
+				group.postfix = (string)node["postfix"].Value;
 				group.commands = commands.LoadPermissionList(node["commands"]);
+				group.custom = node["custom"]??new Node();
 				return group;
 			} catch { return null; }
 		}
 		public void Save() {
-			Node node = new Node.Compound();
-			node["name"] = name;
-			node["standard"] = standard.ToString();
-			node["prefix"] = prefix;
-			node["postfix"] = postfix;
+			Node node = new Node();
+			node["name"] = new Node(name);
+			node["standard"] = new Node(standard.ToString());
+			node["prefix"] = new Node(prefix);
+			node["postfix"] = new Node(postfix);
 			node["commands"] = Command.List.SavePermissionList(commands);
+			node["custom"] = custom;
 			if (!Directory.Exists("groups")) { Directory.CreateDirectory("groups"); }
 			host.Save("groups/"+name+"."+host.Extension,node,"group");
 		}

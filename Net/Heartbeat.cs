@@ -39,7 +39,7 @@ namespace obsidian.Net {
 			           "&max="+server.maxPlayers+
 			           "&users="+server.Players.Count+
 			           "&name="+name+
-			           "&public="+false+
+			           "&public="+server.Public+
 			           "&version="+Protocol.version+
 			           "&salt="+server.salt);
 			if (newUrl!=null) {
@@ -58,7 +58,7 @@ namespace obsidian.Net {
 					       "&hash="+url.Split('=')[1]+
 					       "&max="+server.maxPlayers+
 					       "&users="+server.Players.Count+
-					       "&public="+true+
+					       "&public="+server.Public+
 					       "&server=obsidian"+
 					       "&players="+players);
 				} return true;

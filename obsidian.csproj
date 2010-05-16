@@ -50,13 +50,16 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Control\Account.cs" />
     <Compile Include="Control\Command.cs" />
     <Compile Include="Control\Group.cs" />
     <Compile Include="Control\Lua.cs" />
-    <Compile Include="Data\IDataHost.cs" />
+    <Compile Include="Data\DataHost.cs" />
     <Compile Include="Data\NbtHost.cs" />
     <Compile Include="Data\Node.cs" />
     <Compile Include="Data\XmlHost.cs" />
@@ -75,11 +78,7 @@
     <Compile Include="World\Blocktype.cs" />
     <Compile Include="World\Body.cs" />
     <Compile Include="World\Level.cs" />
-    <Compile Include="World\NPCs\Mimic.cs" />
-    <Compile Include="World\Objects\StateButton.cs" />
-    <Compile Include="World\Objects\ActiveRegion.cs" />
     <Compile Include="World\Objects\Portal.cs" />
-    <Compile Include="World\Objects\Teleporter.cs" />
     <Compile Include="World\Player.cs" />
     <Compile Include="World\Position.cs" />
     <Compile Include="World\Region.cs" />
@@ -90,7 +89,6 @@
     <Folder Include="Control" />
     <Folder Include="Utility" />
     <Folder Include="World" />
-    <Folder Include="World\NPCs" />
     <Folder Include="World\Objects" />
   </ItemGroup>
 </Project>

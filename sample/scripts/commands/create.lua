@@ -4,4 +4,3 @@ Command("create","<entity>","Creates various stuff.",
   end
 )
 dofile "scripts/commands/create_portal.lua"
-dofile "scripts/commands/create_portalbutton.lua"
