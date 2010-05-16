@@ -50,11 +50,15 @@ namespace obsidian.World.Objects {
 		private void OnEnter(Body body,Region region) {
 			Player player = body as Player;
 			if (player!=null) {
-				if (!ignore.Contains(player)) {
+				byte rotx = body.Position.RotX;
+				unchecked {
+					if (region==first) { rotx += orientation; }
+					else { rotx -= orientation; }
+				} if (!ignore.Contains(player)) {
 					ignore.Add(player);
 					player.Teleport(
-						region.X1*32+region.Width*16,region.Y1*32+region.Depth*16,
-						region.Z1*32+region.Height*16,unchecked((byte)(body.Position.RotX+orientation)),body.Position.RotY);
+						region.X1*32+region.Width*16,region.Y1*32+32,
+						region.Z1*32+region.Height*16,rotx,body.Position.RotY);
 					Used(body);
 				} else { ignore.Remove(player); }
 			}

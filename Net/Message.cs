@@ -6,7 +6,7 @@ using obsidian.World;
 namespace obsidian.Net {
 	public class Message {
 		private IEnumerable<Packet> packets;
-		private static Regex removeInvalid = new Regex(@"[^0-9a-f])");
+		private static Regex removeInvalid = new Regex(@"&[^0-9a-f]");
 		private static Regex removeMultiple = new Regex(@"( *?&.)*");
 		private static Regex removeEnd = new Regex(@"(&. *)*$");
 		private static Regex removeUnused = new Regex(@"((&.)[^&]*)\2");

@@ -90,7 +90,7 @@ namespace obsidian.Control {
 				       	if (message!="") { new Message("&eSyntax: "+command.syntax).Send(player); return; }
 				       	new Message("&eCustom Minecraft server 'obsidian'.").Send(player);
 				       });
-				Create("help","[<command>,commands]","Displays generic help or information on a specific command.",
+				Create("help","[<command>|commands]","Displays generic help or information on a specific command.",
 				       delegate (Command command,Player player,string message) {
 				       	if (message=="") {
 				       		// TODO: Generic help message.

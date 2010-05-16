@@ -133,7 +133,8 @@ namespace obsidian.World {
 						byte progress = (byte)((i/1024+1)/Math.Ceiling(gzipped.Length/1024d)*100);
 						Protocol.MapPartPacket(gzipped,i,progress).Send(this);
 					} Protocol.MapEndPacket(level.Width,level.Depth,level.Height).Send(this);
-					ReadyEvent(this);
+					try { ReadyEvent(this); }
+					catch (Exception e) { server.lua.Error(e); }
 					Spawn(level.Spawn);
 					foreach (Body b in level.Bodies) { Protocol.SpawnPacket(b).Send(this); }
 					Position.Set(level.Spawn);
