@@ -22,6 +22,7 @@ server.InitializedEvent:Add(
 
 playerNextBlock = {}
 playerCode = {}
+playerSolid = {}
 
 function FindPlayer(name)
   local i
@@ -54,4 +55,13 @@ function string:split(sep,limit)
   end
   table.insert(result,string.sub(self,pos))
   return result
+end
+
+function table.removevalue(t,value)
+  for i,v in ipairs(t) do
+    if v == value then
+      table.remove(t,i)
+      return
+    end
+  end
 end
