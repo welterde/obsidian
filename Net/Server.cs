@@ -36,6 +36,7 @@ namespace obsidian.Net {
 		private Command.List commands;
 		private Group.List groups = new Group.List();
 		private Account.List accounts = new Account.List();
+		private UpdateQueue queue;
 		private Level level;
 		#endregion
 		
@@ -82,8 +83,14 @@ namespace obsidian.Net {
 		public Account.List Accounts {
 			get { return accounts; }
 		}
+		public UpdateQueue Queue {
+			get { return queue; }
+		}
 		public Level Level {
 			get { return level; }
+		}
+		public bool Running {
+			get { return listener.Running; }
 		}
 		#endregion
 		
@@ -93,16 +100,18 @@ namespace obsidian.Net {
 		public Server(TextWriter log) {
 			this.log = log;
 			listener.AcceptEvent += Accept;
-			commands = new Command.List(this);
 			heartbeat = new Heartbeat(this);
 			updateThread = new Thread(UpdateBodies);
 			lua = new Lua(this);
+			commands = new Command.List(this);
+			queue = new UpdateQueue(this);
 		}
 		
 		public bool Start() {
 			return Start(new string[0]);
 		}
 		public bool Start(string[] args) {
+			if (Running) { throw new Exception("Server is already running"); }
 			log.WriteLine();
 			log.WriteLine("   = Minecraft Server \"obsidian\" =");
 			log.WriteLine();
@@ -126,7 +135,8 @@ namespace obsidian.Net {
 			} else {
 				level = World.Level.Load(mainLevel);
 				if (level==null) { Log("Failed to load level '"+mainLevel+"'."); return false; }
-			} if (!listener.Start(port)) {
+			} level.server = this;
+			if (!listener.Start(port)) {
 				Log("Error: Server creation failed, port {0} already in use?",port);
 				return false;
 			} Log("Server is running on port {0}.",port);
@@ -137,6 +147,7 @@ namespace obsidian.Net {
 				File.WriteAllText("externalurl.txt",heartbeat.url);
 				Log("URL saved to externalurl.txt.\n  "+heartbeat.url);
 			} updateThread.Start();
+			queue.Start();
 			return true;
 		}
 		private bool ParseParameters(string[] args) {
@@ -155,10 +166,12 @@ namespace obsidian.Net {
 			} return true;
 		}
 		public void Stop() {
+			if (Running) { throw new Exception("Server isn't running"); }
 			lua.Stop();
 			listener.Stop();
 			heartbeat.Stop();
 			updateThread.Abort();
+			queue.Stop();
 			Log("Server stopped.",port);
 		}
 		

@@ -59,6 +59,7 @@
     <Compile Include="Control\Command.cs" />
     <Compile Include="Control\Group.cs" />
     <Compile Include="Control\Lua.cs" />
+    <Compile Include="Control\UpdateQueue.cs" />
     <Compile Include="Data\DataHost.cs" />
     <Compile Include="Data\NbtHost.cs" />
     <Compile Include="Data\Node.cs" />
