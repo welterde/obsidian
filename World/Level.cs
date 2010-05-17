@@ -11,6 +11,7 @@ namespace obsidian.World {
 		private static DataHost host = NbtHost.Instance;
 		
 		#region Members
+		internal Server server;
 		private short width;
 		private short depth;
 		private short height;
@@ -79,16 +80,22 @@ namespace obsidian.World {
 		public bool SetBlock(Player player,short x,short y,short z,byte type) {
 			if (this[x,y,z]==type) { return false; }
 			BlockArgs e = new BlockArgs(player,x,y,z,type);
-			BlockEvent(this,e);
-			if (e.Abort) { return false; }
+			try { BlockEvent(this,e); }
+			catch (Exception ex) {
+				if (server==null) { throw ex; }
+				else { server.lua.Error(ex); }
+			} if (e.Abort) { return false; }
 			this[x,y,z] = type;
 			Protocol.BlockPacket(x,y,z,type).Send(this);
 			return true;
 		}
 		internal void PlayerSetBlock(BlockArgs e) {
 			byte before = this[e.X,e.Y,e.Z];
-			BlockEvent(this,e);
-			if (before==this[e.X,e.Y,e.Z]) {
+			try { BlockEvent(this,e); }
+			catch (Exception ex) {
+				if (server==null) { throw ex; }
+				else { server.lua.Error(ex); }
+			} if (before==this[e.X,e.Y,e.Z]) {
 				if (e.Abort) { Protocol.BlockPacket(e.X,e.Y,e.Z,before).Send(e.Origin); }
 				else { this[e.X,e.Y,e.Z] = e.Type; Protocol.BlockPacket(e.X,e.Y,e.Z,e.Type).Send(this,e.Origin); }
 			}
