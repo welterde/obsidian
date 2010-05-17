@@ -10,6 +10,7 @@ namespace obsidian.Net {
 		private static Regex removeMultiple = new Regex(@"( *?&.)*");
 		private static Regex removeEnd = new Regex(@"(&. *)*$");
 		private static Regex removeUnused = new Regex(@"((&.)[^&]*)\2");
+		private static int wordwrap = 12;
 		
 		public Message(string message) {
 			message = removeInvalid.Replace(message,"");
@@ -19,18 +20,22 @@ namespace obsidian.Net {
 			if (message[message.Length-1]=='&') {
 				message = message.Substring(0,message.Length-1);
 			} List<string> lines = new List<string>(message.Split(new char[1]{'\n'},StringSplitOptions.RemoveEmptyEntries));
-			// TODO: Continue here ... *yawn*
-			/* for (int i=0;i<lines.Count;i++) {
+			for (int i=0;i<lines.Count;i++) {
 				string line = lines[i];
 				if (line.Length<=64) { continue; }
-				int lastspace = -1;
-				int lastcolor = -1;
-				for (int pos=0;pos<line.Length && pos<=64;pos++) {
-					if (line[pos]==' ') { lastspace = pos; }
-					if (line[pos]=='&') { lastcolor = pos; }
-				} 
-			} */
-			packets = lines.ConvertAll(new Converter<string,Packet>(ToPacket));
+				int lastspace = line.LastIndexOf(' ',63,wordwrap);
+				if (lastspace!=-1) { line = line.Remove(lastspace,1); }
+				int pos = (lastspace!=-1)?lastspace:64;
+				int lastcolor = line.LastIndexOf('&',pos-1,pos);
+				string color = "";
+				if (lastcolor!=-1) {
+					color = line.Substring(lastcolor,2);
+				} if (lastcolor>=pos-2 && lastcolor<pos) {
+					line = line.Remove(lastcolor,2);
+					pos = lastcolor;
+				}lines[i] = line.Substring(0,pos);
+				lines.Insert(i+1,color+"-> "+line.Substring(pos));
+			} packets = lines.ConvertAll(new Converter<string,Packet>(ToPacket));
 		}
 		
 		private Packet ToPacket(string line) {
