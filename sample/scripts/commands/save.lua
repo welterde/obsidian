@@ -1,6 +1,10 @@
 Command("save","[name]","Saves the level.",
   function(command,player,message)
     if message == "" then message = server.MainLevel end
+    if not message then
+      Message("&eNo main level specified."):Send(player)
+      return
+    end
     local status,err = pcall(SaveLevel,message)
     if status then
       Message("&eLevel saved as '"..message.."'."):Send(server)
