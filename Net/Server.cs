@@ -127,7 +127,7 @@ namespace obsidian.Net {
 			if (error!=null) { Log("Error: "+error); return false; }
 			accounts.Load(groups,out loaded,out failed);
 			Log("{0} account{1} loaded{2}.",loaded,loaded==1?"":"s",failed==0?"":" ("+failed+" failed)");
-			if (mainLevel==null) {
+			if (mainLevel==null || !File.Exists("levels/"+mainLevel+".lvl")) {
 				log.Write("({0}) Generating Level ... ",DateTime.Now.ToString("HH:mm:ss"));
 				level = LevelGenerator.Flatgrass(128,64,128);
 				if (level==null) { log.WriteLine("Error!"); return false; }
