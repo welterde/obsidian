@@ -14,6 +14,7 @@ namespace obsidian.World {
 		private OnlineStatus status = OnlineStatus.Connected;
 		private string quitMessage = null;
 		private bool destroyAdminium = false;
+		internal byte[] bind;
 		#endregion
 		
 		#region Public members
@@ -62,6 +63,8 @@ namespace obsidian.World {
 			helper.Block += OnBlock;
 			helper.Move += OnMove;
 			helper.Chat += OnChat;
+			bind = new byte[Blocktype.Count];
+			for (byte i=0;i<bind.Length;i++) { bind[i] = i; }
 		}
 		
 		private void OnDisconnect() {

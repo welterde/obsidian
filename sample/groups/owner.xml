@@ -12,6 +12,7 @@
     <string>about</string>
     <string>abort</string>
     <string>spawn</string>
+    <string>bind</string>
     <string>tp</string>
     <string>summon</string>
     <string>setspawn</string>
@@ -33,6 +34,15 @@
     <string>dummy destroy</string>
   </list>
   <compound name="custom">
+    <list name="bind">
+      <string>grass</string>
+      <string>adminium</string>
+      <string>water</string>
+      <string>stillwater</string>
+      <string>lava</string>
+      <string>stilllava</string>
+      <string>doublestair</string>
+    </list>
     <list name="changegroup">
       <string>guest</string>
       <string>trusted</string>

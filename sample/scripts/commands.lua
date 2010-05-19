@@ -3,6 +3,7 @@ dofile "scripts/commands/motd.lua"
 dofile "scripts/commands/about.lua"
 dofile "scripts/commands/abort.lua"
 dofile "scripts/commands/spawn.lua"
+dofile "scripts/commands/bind.lua"
 
 dofile "scripts/commands/tp.lua"
 dofile "scripts/commands/summon.lua"

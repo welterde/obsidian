@@ -12,7 +12,15 @@
     <string>about</string>
     <string>abort</string>
     <string>spawn</string>
+    <string>bind</string>
     <string>tp</string>
   </list>
-  <compound name="custom" />
+  <compound name="custom">
+    <list name="bind">
+      <string>grass</string>
+      <string>stillwater</string>
+      <string>stilllava</string>
+      <string>doublestair</string>
+    </list>
+  </compound>
 </compound>

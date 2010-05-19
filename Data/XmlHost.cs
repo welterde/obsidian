@@ -43,7 +43,7 @@ namespace obsidian.Data {
 			XElement element = NodeToElement(root);
 			element.SetAttributeValue("name",name);
 			XmlWriterSettings settings = new XmlWriterSettings(){ OmitXmlDeclaration=false };
-			using (XmlWriter writer = XmlWriter.Create(new StringBuilder(),settings)) {
+			using (XmlWriter writer = XmlWriter.Create(filename,settings)) {
 				element.Save(writer);
 			}
 		}
@@ -97,16 +97,6 @@ namespace obsidian.Data {
 					} return compound;
 					default: return new XElement(names[index],node.Value);
 			}
-		}
-		
-		private Type ListType(List<Node> list) {
-			Type type = null;
-			foreach (Node n in list) {
-				if (n.Value==null) { continue; }
-				if (type==null) { type = n.Value.GetType(); continue; }
-				if (type!=n.Value.GetType())
-					throw new Exception("List<Node> musn't contain different types of values.");
-			} return type;
 		}
 	}
 }
