@@ -4,12 +4,12 @@ Command("abort","","Cancels an action.",
       Message("&eSyntax: "..command.syntax):Send(player)
 	  return
     end
-	if playerNextBlock[player] == nil then
+    local info = PlayerNextBlockInfo(player)
+	if not info then
 	  Message("&eThere is no action to abort."):Send(player)
 	  return
 	end
-    player.BlockEvent:Remove(playerNextBlock[player].handle)
-	Message("&e"..playerNextBlock[player].name.." aborted."):Send(player)
-	playerNextBlock[player] = nil
+	Message("&e"..info.." aborted."):Send(player)
+	PlayerAbortNextBlock(player)
   end
 )

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using obsidian.Utility;
 
 namespace obsidian.World {
 	public class Region {
@@ -71,6 +72,7 @@ namespace obsidian.World {
 		#endregion
 		
 		public Region(Level level,int x1,int y1,int z1,int x2,int y2,int z2) {
+			if (level==null) { throw new ArgumentNullException("level"); }
 			this.level = level;
 			this.x1 = x1; this.y1 = y1; this.z1 = z1;
 			this.x2 = x2; this.y2 = y2; this.z2 = z2;
@@ -81,17 +83,17 @@ namespace obsidian.World {
 		public virtual void Destroy() {
 			level.regions.Remove(this);
 			level.BlockEvent -= CheckBlock;
-			Destroyed();
+			Destroyed.Raise(level.server);
 		}
 		
 		protected virtual void OnEnter(Body body) {
-			EnterEvent(body);
+			EnterEvent.Raise(level.server,body);
 		}
 		protected virtual void OnLeave(Body body) {
-			LeaveEvent(body);
+			LeaveEvent.Raise(level.server,body);
 		}
 		protected virtual void OnBlock(BlockArgs args) {
-			BlockEvent(this,args);
+			BlockEvent.Raise(level.server,this,args);
 		}
 		
 		private void CheckBlock(object sender,BlockArgs args) {

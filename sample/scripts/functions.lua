@@ -5,7 +5,6 @@ Portal = luanet.import_type("obsidian.World.Objects.Portal")
 Body = luanet.import_type("obsidian.World.Body")
 Blocktype = luanet.import_type("obsidian.World.Blocktype")
 Node = luanet.import_type("obsidian.Data.Node")
-
 Command = function(name,syntax,help,func)
   server.Commands:Create(name,syntax,help,func)
 end
@@ -19,10 +18,6 @@ server.InitializedEvent:Add(
     owner = FindGroup("owner")
   end
 )
-
-playerNextBlock = {}
-playerCode = {}
-playerSolid = {}
 
 function FindPlayer(name)
   local i
@@ -64,4 +59,15 @@ function table.removevalue(t,value)
       return
     end
   end
+end
+
+function table.clone(t,deep)
+  local new = {}
+  for k,v in pairs(t) do
+    if deep and type(v)=="table" then
+      v = table.clone(v,true)
+    end
+    new[k] = v
+  end
+  return setmetatable(new,getmetatable(t))
 end

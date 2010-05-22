@@ -11,7 +11,6 @@ namespace obsidian.Net {
 		private Server server;
 		private Thread thread;
 		internal string url;
-		internal bool fList = true;
 		
 		internal bool Running {
 			get { return (thread!=null); }
@@ -35,37 +34,16 @@ namespace obsidian.Net {
 		internal bool Send() {
 			string name = "%"+BitConverter.ToString(Encoding.ASCII.GetBytes(server.Name)).Replace("-","%");
 			string newUrl = Send("http://www.minecraft.net/heartbeat.jsp",
-			           "port="+server.Port+
-			           "&max="+server.maxPlayers+
-			           "&users="+server.Players.Count+
-			           "&name="+name+
-			           "&public="+server.Public+
-			           "&version="+Protocol.version+
-			           "&salt="+server.salt);
-			if (newUrl!=null) {
-				url = newUrl;
-				if (fList) {
-					string motd = "%"+BitConverter.ToString(Encoding.ASCII.GetBytes(server.Motd)).Replace("-","%");
-					string players = "";
-					if (server.Players.Count>0) {
-						StringBuilder builder = new StringBuilder();
-						foreach (Player player in server.Players) {
-							builder.Append(player.Name).Append(",");
-						} players = builder.Remove(builder.Length-1,1).ToString();
-					} Send("http://list.fragmer.net/announce.php",
-					       "name="+name+
-					       "&motd="+motd+
-					       "&hash="+url.Split('=')[1]+
-					       "&max="+server.maxPlayers+
-					       "&users="+server.Players.Count+
-					       "&public="+server.Public+
-					       "&server=obsidian"+
-					       "&players="+players);
-				} return true;
-			} else {
-				server.Log("Could not send heartbeat.");
-				return false;
-			}
+			                     "port="+server.Port+
+			                     "&max="+server.maxPlayers+
+			                     "&users="+server.Players.Count+
+			                     "&name="+name+
+			                     "&public="+server.Public+
+			                     "&version="+Protocol.version+
+			                     "&salt="+server.salt);
+			if (newUrl==null) { server.Log("Could not send heartbeat."); }
+			else { url = newUrl; }
+			return (newUrl!=null);
 		}
 		private string Send(string announceUrl,string get) {
 			HttpWebRequest request = null;

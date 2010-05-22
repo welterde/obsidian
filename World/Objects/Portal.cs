@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using obsidian.Utility;
 
 namespace obsidian.World.Objects {
 	public class Portal {
+		private Level level;
 		private Region first;
 		private Region second;
 		private byte orientation = 0;
@@ -24,6 +26,7 @@ namespace obsidian.World.Objects {
 		public Portal(Level level,BlockArgs first,BlockArgs second)
 			: this(level,first.X,first.Y,first.Z,second.X,second.Y,second.Z) {  }
 		public Portal(Level level,int x1,int y1,int z1,int x2,int y2,int z2) {
+			this.level = level;
 			first = new Region(level,x1,y1,z1,x1+1,y1+2,z1+1);
 			second = new Region(level,x2,y2,z2,x2+1,y2+2,z2+1);
 			level.Cuboid(null,first,0);
@@ -59,7 +62,7 @@ namespace obsidian.World.Objects {
 					player.Teleport(
 						region.X1*32+region.Width*16,region.Y1*32+32,
 						region.Z1*32+region.Height*16,rotx,body.Position.RotY);
-					Used(body);
+					Used.Raise(level.server,body);
 				} else { ignore.Remove(player); }
 			}
 		}

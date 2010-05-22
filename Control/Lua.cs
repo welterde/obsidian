@@ -38,14 +38,13 @@ namespace obsidian.Control {
 				shortMsg = "Error in "+ex.Source+e.Message.Split(new char[1]{'\n'},2)[0];
 				longMsg = "Error in "+ex.Source+e;
 			} if (errorLog!=null) {
-				File.AppendAllText(errorLog,longMsg);
+				File.AppendAllText(errorLog,longMsg+"\n");
 				server.Log(shortMsg);
 			} else { server.Log(longMsg); }
 			if (server.Level!=null) {
 				new Message("&e"+shortMsg).Send(server);
 			}
 		}
-		
 		
 		public bool Is(object value,string type) {
 			if (value==null) { return false; }

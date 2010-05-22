@@ -1,5 +1,6 @@
 ﻿using System;
 using obsidian.Net;
+using obsidian.Utility;
 
 namespace obsidian.World {
 	public class Body {
@@ -62,13 +63,13 @@ namespace obsidian.World {
 			for (byte i=0;i<used.Length;i++) { if (!used[i]) { id = i; break; } }
 			Protocol.SpawnPacket(this).Send(level);
 			level.bodies.Add(this);
-			if (ev) { Created(this); }
+			if (ev) { Created.Raise(level.server,this); }
 		}
 		private void Destroy(bool ev) {
 			visible = false;
 			Protocol.DiePacket(id).Send(level);
 			level.bodies.Remove(this);
-			if (ev) { Destroyed(this); }
+			if (ev) { Destroyed.Raise(level.server,this); }
 		}
 		
 		internal void Update() {
@@ -93,7 +94,7 @@ namespace obsidian.World {
 			} if (packet!=null) {
 				oldpos.Set(position);
 				packet.Send(level);
-				MoveEvent(this);
+				MoveEvent.Raise(level.server,this);
 			}
 		}
 	}

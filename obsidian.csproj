@@ -71,6 +71,7 @@
     <Compile Include="Net\Protocol.cs" />
     <Compile Include="Net\Server.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Utility\Extensions.cs" />
     <Compile Include="Utility\GZipper.cs" />
     <Compile Include="Utility\LevelGenerator.cs" />
     <Compile Include="Utility\RegexHelper.cs" />

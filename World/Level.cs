@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using obsidian.Control;
 using obsidian.Net;
 using obsidian.Data;
@@ -80,24 +81,19 @@ namespace obsidian.World {
 		public bool SetBlock(Player player,short x,short y,short z,byte type) {
 			if (this[x,y,z]==type) { return false; }
 			BlockArgs e = new BlockArgs(player,x,y,z,type);
-			try { BlockEvent(this,e); }
-			catch (Exception ex) {
-				if (server==null) { throw ex; }
-				else { server.lua.Error(ex); }
-			} if (e.Abort) { return false; }
+			BlockEvent.Raise(server,this,e);
+			if (e.Abort) { return false; }
 			this[x,y,z] = type;
 			Protocol.BlockPacket(x,y,z,type).Send(this);
 			return true;
 		}
-		internal void PlayerSetBlock(BlockArgs e) {
-			byte before = this[e.X,e.Y,e.Z];
-			try { BlockEvent(this,e); }
-			catch (Exception ex) {
-				if (server==null) { throw ex; }
-				else { server.lua.Error(ex); }
-			} if (before==this[e.X,e.Y,e.Z]) {
-				if (e.Abort) { Protocol.BlockPacket(e.X,e.Y,e.Z,before).Send(e.Origin); }
-				else { this[e.X,e.Y,e.Z] = e.Type; Protocol.BlockPacket(e.X,e.Y,e.Z,e.Type).Send(this,e.Origin); }
+		internal void PlayerSetBlock(Player player,short x,short y,short z,byte type) {
+			byte before = this[x,y,z];
+			BlockArgs e = new BlockArgs(player,x,y,z,type);
+			BlockEvent.Raise(server,this,e);
+			if (before==this[x,y,z]) {
+				if (e.Abort) { Protocol.BlockPacket(x,y,z,before).Send(player); }
+				else { this[x,y,z] = type; Protocol.BlockPacket(x,y,z,type).Send(this,player); }
 			}
 		}
 
@@ -130,11 +126,11 @@ namespace obsidian.World {
 		}
 		public void Cuboid(Player player,Region region,byte type) {
 			Cuboid(player,region.X1,region.Y1,region.Z1,
-			     region.X2,region.Y2,region.Z2,type);
+			       region.X2,region.Y2,region.Z2,type);
 		}
 		public void Cuboid(Player player,int x1,int y1,int z1,int x2,int y2,int z2,byte type) {
 			x1 = Math.Max(x1,0); y1 = Math.Max(y1,0); z1 = Math.Max(z1,0);
-			x2 = Math.Min(x2,width-1); y2 = Math.Min(y2,depth-1); z2 = Math.Min(z2,height-1);
+			x2 = Math.Min(x2,width); y2 = Math.Min(y2,depth); z2 = Math.Min(z2,height);
 			for (int x=x1;x<x2;x++)
 				for (int y=y1;y<y2;y++)
 					for (int z=z1;z<z2;z++)
@@ -188,6 +184,7 @@ namespace obsidian.World {
 			node["mapdata"] = new Node(mapdata);
 			node["blockdata"] = new Node(blockdata);
 			node["custom"] = custom;
+			if (!Directory.Exists("levels")) { Directory.CreateDirectory("levels"); }
 			host.Save("levels/"+name+".lvl",node,"obsidian-level");
 		}
 	}

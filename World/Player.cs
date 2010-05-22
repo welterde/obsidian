@@ -4,6 +4,7 @@ using System.Threading;
 using obsidian.Net;
 using obsidian.Control;
 using obsidian.Data;
+using obsidian.Utility;
 
 namespace obsidian.World {
 	public class Player : Body {
@@ -44,12 +45,12 @@ namespace obsidian.World {
 			}
 		}
 		#endregion
-			
+		
 		#region Events
 		internal event Action<Player> IdentifiedEvent = delegate {  };
 		internal event Action<Player,byte,string,string> LoginEvent = delegate {  };
 		internal event Action<Player,string> ChatEvent = delegate {  };
-		internal event Action<Player,BlockArgs> InternalBlockEvent = delegate {  };
+		internal event Action<Player,BlockArgs,bool> InternalBlockEvent = delegate {  };
 		public event Action<Player> ReadyEvent = delegate {  };
 		public event Action<Player,string> DisconnectedEvent = delegate {  };
 		public event Action<Player,BlockArgs,byte> BlockEvent = delegate {  };
@@ -71,8 +72,7 @@ namespace obsidian.World {
 			if (level!=null) {
 				level.players.Remove(this);
 				Visible = false;
-			} try { DisconnectedEvent(this,quitMessage); }
-			catch (Exception e) { server.lua.Error(e); }
+			} DisconnectedEvent.Raise(server,this,quitMessage);
 			
 		}
 		private void OnLogin(byte version,string name,string verify,byte mode) {
@@ -94,16 +94,19 @@ namespace obsidian.World {
 			if (y==level.Depth) { return; }
 			if (x>=level.Width || y>=level.Depth || z>=level.Height) {
 				new Message("&eInvalid block position.").Send(this); return;
-			} byte block = type;
+			} byte block = bind[type];
 			if (action==0) { block = 0x00; }
-			byte before = level.GetBlock(x,y,z);
-			if (before==block) { return; }
-			if (before==Blocktype.adminium.ID && !destroyAdminium) {
-				new Message("&eYou can't destroy adminium.").Send(this); return;
+			byte before = level[x,y,z];
+			if (before==block) {
+				if (bind[type]!=type) { Protocol.BlockPacket(x,y,z,level[x,y,z]).Send(this); }
+				return;
+			} if (before==Blocktype.adminium.ID && !destroyAdminium) {
+				Protocol.BlockPacket(x,y,z,7).Send(this);
+				return;
 			} BlockArgs args = new BlockArgs(this,x,y,z,block);
-			try { BlockEvent(this,args,type); }
-			catch (Exception e) { server.lua.Error(e); }
-			InternalBlockEvent(this,args);
+			BlockEvent.Raise(server,this,args,type);
+			if (!args.Abort) { InternalBlockEvent(this,args,(bind[type]!=type)); }
+			else if (level[x,y,z]==before) { Protocol.BlockPacket(x,y,z,level[x,y,z]).Send(this); }
 		}
 		private void OnMove(byte id,ushort x,ushort y,ushort z,byte rotx,byte roty) {
 			if (status!=OnlineStatus.Ready) { return; }
@@ -136,8 +139,7 @@ namespace obsidian.World {
 						byte progress = (byte)((i/1024+1)/Math.Ceiling(gzipped.Length/1024d)*100);
 						Protocol.MapPartPacket(gzipped,i,progress).Send(this);
 					} Protocol.MapEndPacket(level.Width,level.Depth,level.Height).Send(this);
-					try { ReadyEvent(this); }
-					catch (Exception e) { server.lua.Error(e); }
+					ReadyEvent.Raise(server,this);
 					Spawn(level.Spawn);
 					foreach (Body b in level.Bodies) { Protocol.SpawnPacket(b).Send(this); }
 					Position.Set(level.Spawn);

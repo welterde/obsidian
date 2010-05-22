@@ -7,12 +7,12 @@
     <string>info</string>
     <string>help</string>
 	<string>help commands</string>
+    <string>bind</string>
     <string>me</string>
 	<string>motd</string>
     <string>about</string>
 	<string>abort</string>
     <string>spawn</string>
-    <string>bind</string>
 	<string>tp</string>
 	<string>summon</string>
     <string>setspawn</string>

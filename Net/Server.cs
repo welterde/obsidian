@@ -140,8 +140,7 @@ namespace obsidian.Net {
 				Log("Error: Server creation failed, port {0} already in use?",port);
 				return false;
 			} Log("Server is running on port {0}.",port);
-			try { InitializedEvent(); }
-			catch (Exception e) { lua.Error(e); return false; }
+			InitializedEvent.Raise(this);
 			heartbeat.Start(1000*55);
 			if (heartbeat.Send()) {
 				File.WriteAllText("externalurl.txt",heartbeat.url);
@@ -188,10 +187,10 @@ namespace obsidian.Net {
 			int counter = 0;
 			while (true) {
 				Thread.Sleep(30);
-				try {
+				Action action = delegate {
 					foreach (Body body in new List<Body>(level.Bodies)) { body.Update(); }
 					if (++counter>=6) foreach (Region region in new List<Region>(level.Regions)) { region.Update(); }
-				} catch (Exception e) { lua.Error(e); }
+				}; action.Raise(this);
 			}
 		}
 		
@@ -214,12 +213,14 @@ namespace obsidian.Net {
 				players.Add(player);
 				player.account = accounts.Login(player,name);
 				player.level = level;
-				try { PlayerLoginEvent(player,name); }
-				catch (Exception e) { lua.Error(e); }
+				PlayerLoginEvent.Raise(this,player,name);
 			}
 		}
-		private void PlayerBlock(Player player,BlockArgs e) {
-			player.level.PlayerSetBlock(e);
+		private void PlayerBlock(Player player,BlockArgs e,bool sendPlayer) {
+			if (sendPlayer) {
+				if (!player.level.SetBlock(player,e.X,e.Y,e.Z,e.Type))
+					Protocol.BlockPacket(e.X,e.Y,e.Z,player.level[e.X,e.Y,e.Z]).Send(player);
+			} else { player.level.PlayerSetBlock(player,e.X,e.Y,e.Z,e.Type); }
 		}
 		private void PlayerChat(Player player,string message) {
 			if (message=="") { return; }
@@ -231,8 +232,7 @@ namespace obsidian.Net {
 				Command command = commands.Search(ref message);
 				if (command==null) { new Message("&eThis command doesn't exist.").Send(player); }
 				else if (player.Group.Commands.Contains(command)) {
-					try { command.Use(player,message); }
-					catch (Exception e) { lua.Error(e); }
+					command.use.Raise(this,command,player,message);
 				} else { new Message("&eYou're not allowed to use this command.").Send(player); }
 			} else {
 				Log("<{0}> {1}",player.Name,message);

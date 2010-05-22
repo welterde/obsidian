@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Threading;
 using obsidian.Net;
+using obsidian.Utility;
 
 namespace obsidian.Control {
 	public class UpdateQueue {
 		private Server server;
 		private LinkedList<Item> items = new LinkedList<Item>();
-		private int interval = 150;
-		private int max = 4;
+		private int interval = 80;
+		private int max = 3;
 		private Thread thread;
 		
 		public int Interval {
@@ -33,7 +34,7 @@ namespace obsidian.Control {
 		}
 		
 		public UpdateQueue(Server server) {
-			if (server==null) { throw new ArgumentNullException(); }
+			if (server==null) { throw new ArgumentNullException("server"); }
 			this.server = server;
 			thread = new Thread(DoStuff);
 		}
@@ -68,8 +69,7 @@ namespace obsidian.Control {
 				int done = 0;
 				foreach (Item item in new List<Item>(items)) {
 					if (item.time<DateTime.Now.AddMilliseconds(interval/2)) {
-						try { item.action(item.data); }
-						catch (Exception e) { server.lua.Error(e); }
+						item.action.Raise(server,item.data);
 						items.Remove(item);
 						done++; if (done>=max) { break; }
 					} else { break; }

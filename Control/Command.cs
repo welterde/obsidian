@@ -10,7 +10,7 @@ namespace obsidian.Control {
 		private readonly string name;
 		private readonly string syntax;
 		private readonly string help;
-		private readonly UseHandler use;
+		internal readonly UseHandler use;
 		public delegate void UseHandler(Command command,Player player,string message);
 		#endregion
 		
@@ -87,30 +87,74 @@ namespace obsidian.Control {
 				commands.Clear();
 				Create("info","","Displays information on the server.",
 				       delegate (Command command,Player player,string message) {
-				       	if (message!="") { new Message("&eSyntax: "+command.syntax).Send(player); return; }
-				       	new Message("&eCustom Minecraft server 'obsidian'.").Send(player);
+				       	if (message!="") {
+				       		new Message("&eSyntax: "+command.syntax).Send(player);
+				       		return;
+				       	} new Message("&eCustom Minecraft server 'obsidian'.").Send(player);
 				       });
 				Create("help","[<command>|commands]","Displays generic help or information on a specific command.",
 				       delegate (Command command,Player player,string message) {
 				       	if (message=="") {
-				       		// TODO: Generic help message.
-				       		new Message("&eComing soon ...").Send(player);
-				       	} else {
-				       		command = this[message];
-				       		if (command==null) { new Message("&eThere is no help available for '"+message+"'.").Send(player); }
-				       		else { new Message("&e"+command.help).Send(player); }
-				       	}
+				       		new Message("&eTo show a list of commands, type '/help commands'.").Send(player);
+				       		return;
+				       	} command = this[message];
+				       	if (command==null) { new Message("&eThere is no help available for '"+message+"'.").Send(player); }
+				       	else { new Message("&e"+command.help).Send(player); }
 				       });
 				Create("help commands","","Shows all available commands.",
 				       delegate (Command command,Player player,string message) {
-				       	if (message!="") { new Message("&eSyntax: "+command.syntax).Send(player); return; }
-				       	string cmds = "";
+				       	if (message!="") {
+				       		new Message("&eSyntax: "+command.syntax).Send(player);
+				       		return;
+				       	} string cmds = "";
 				       	for (int i=0;i<player.Group.Commands.Count;i+=1) {
 				       		string cmd = player.Group.Commands[i].name;
 				       		if (cmd.IndexOf(' ')!=-1) { continue; }
 				       		cmds += ", "+cmd;
 				       	} cmds = cmds.Remove(0,2);
 				       	new Message("&eAvailable commands: "+cmds).Send(player);
+				       });
+				Create("bind","<block> [<replace>]","Replaces blocks built by a specific blocktype.",
+				       delegate (Command command,Player player,string message) {
+				       	if (message=="") {
+				       		new Message("&eSyntax: "+command.syntax).Send(player);
+				       		return;
+				       	} string[] args = message.Split(new char[1]{' '},2);
+				       	Blocktype block = null;
+				       	byte id;
+				       	if (byte.TryParse(args[0],out id)) {
+				       		block = Blocktype.FindById(id);
+				       	} else { block = Blocktype.FindByName(args[0]); }
+				       	if (block==null) {
+				       		new Message("&eUnknown blocktype '"+args[0]+"'.").Send(player);
+				       		return;
+				       	} if (!block.Placeable) {
+				       		new Message("&e"+block.Name+" is not placeable.").Send(player);
+				       		return;
+				       	} if (args.Length==1) {
+				       		if (player.bind[block.ID]==block.ID) {
+				       			new Message("&e"+block.Name+" isn't bound.").Send(player);
+				       			return;
+				       		} player.bind[block.ID] = block.ID;
+				       		new Message("&eUnbound "+block.Name+".").Send(player);
+				       	} else {
+				       		Blocktype replace = null;
+				       		if (byte.TryParse(args[1],out id)) {
+				       			replace = Blocktype.FindById(id);
+				       		} else { replace = Blocktype.FindByName(args[1]); }
+				       		if (replace==null) {
+				       			new Message("&eUnknown blocktype '"+args[1]+"'.").Send(player);
+				       			return;
+				       		} Node node = player.Group.Custom["bind"];
+				       		if (node==null || !node.Contains(replace.Name.ToLower())) {
+				       			new Message("&eYou can't bind something to "+replace.Name+".").Send(player);
+				       			return;
+				       		} if (player.bind[block.ID]==replace.ID) {
+				       			new Message("&e"+block.Name+" is already bound to "+replace.Name+".").Send(player);
+				       			return;
+				       		} player.bind[block.ID] = replace.ID;
+				       		new Message("&eBound "+block.Name+" to "+replace.Name+".").Send(player);
+				       	}
 				       });
 			}
 			
