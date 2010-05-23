@@ -9,6 +9,9 @@ Command = function(name,syntax,help,func)
   server.Commands:Create(name,syntax,help,func)
 end
 
+dofile "scripts/plugins/stairs.lua"
+dofile "scripts/plugins/gravity.lua"
+
 server.InitializedEvent:Add(
   function()
     guest = FindGroup("guest")
@@ -16,6 +19,8 @@ server.InitializedEvent:Add(
     operator = FindGroup("operator")
     admin = FindGroup("admin")
     owner = FindGroup("owner")
+    Stairs.Start(server.Level)
+    Gravity.Start(server.Level)
   end
 )
 
