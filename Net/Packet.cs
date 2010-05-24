@@ -10,14 +10,16 @@ namespace obsidian.Net {
 			this.buffer = buffer;
 		}
 		
+		#region Sending
 		public void Send(Player player) {
 			player.Send(buffer);
 		}
-		public void Send(IList<Player> players) {
-			foreach (Player player in players) { Send(player); }
+		public void Send(IEnumerable<Player> players) {
+			foreach (Player player in players) Send(player);
 		}
-		public void Send(IList<Player> players,Player except) {
-			foreach (Player player in players) { if (player!=except) { Send(player); } }
+		public void Send(IEnumerable<Player> players,Player except) {
+			foreach (Player player in players)
+				if (player!=except) { Send(player); }
 		}
 		public void Send(Level level) {
 			Send(new List<Player>(level.Players));
@@ -28,5 +30,6 @@ namespace obsidian.Net {
 		public void Send(Server server) {
 			Send(server.Level);
 		}
+		#endregion
 	}
 }

@@ -51,23 +51,25 @@ namespace obsidian.Net {
 			} return Protocol.ChatPacket(id,line);
 		}
 		
+		#region Sending
 		public void Send(Player player) {
-			foreach (Packet packet in packets) { packet.Send(player); }
+			foreach (Packet packet in packets) packet.Send(player);
 		}
-		public void Send(IList<Player> players) {
-			foreach (Packet packet in packets) { packet.Send(players); }
+		public void Send(IEnumerable<Player> players) {
+			foreach (Packet packet in packets) packet.Send(players);
 		}
-		public void Send(IList<Player> players,Player except) {
-			foreach (Packet packet in packets) { packet.Send(players,except); }
+		public void Send(IEnumerable<Player> players,Player except) {
+			foreach (Packet packet in packets) packet.Send(players,except);
 		}
 		public void Send(Level level) {
-			foreach (Packet packet in packets) { packet.Send(level); }
+			foreach (Packet packet in packets) packet.Send(level);
 		}
 		public void Send(Level level,Player except) {
-			foreach (Packet packet in packets) { packet.Send(level,except); }
+			foreach (Packet packet in packets) packet.Send(level,except);
 		}
 		public void Send(Server server) {
-			foreach (Packet packet in packets) { packet.Send(server); }
+			foreach (Packet packet in packets) packet.Send(server);
 		}
+		#endregion
 	}
 }

@@ -60,12 +60,12 @@ namespace obsidian.World {
 			dirt = Add("Dirt");
 			cobblestone = Add("Cobblestone");
 			wood = Add("Wood");
-			sapling = Add("Sapling",true,false);
+			sapling = Add("Sapling",true);
 			adminium = Add("Adminium",false);
-			water = Add("Water",false,false,false);
-			stillWater = Add("StillWater",false,false,false);
-			lava = Add("Lava",false,false,false);
-			stillLava = Add("StillLava",false,false,false);
+			water = Add("Water",false,false);
+			stillWater = Add("StillWater",false,false);
+			lava = Add("Lava",false,false);
+			stillLava = Add("StillLava",false,false);
 			sand = Add("Sand");
 			gravel = Add("Gravel");
 			goldOre = Add("GoldOre");
@@ -91,10 +91,10 @@ namespace obsidian.World {
 			black = Add("Black");
 			gray = Add("Gray");
 			white = Add("White");
-			flower = Add("Flower",true,false);
-			rose = Add("Rose",true,false);
-			brownMushroom = Add("BrownMushroom",true,false);
-			redMushroom = Add("RedMushroom",true,false);
+			flower = Add("Flower",true);
+			rose = Add("Rose",true);
+			brownMushroom = Add("BrownMushroom",true);
+			redMushroom = Add("RedMushroom",true);
 			gold = Add("Gold");
 			iron = Add("Iron");
 			doubleStair = Add("DoubleStair",false);
@@ -110,7 +110,7 @@ namespace obsidian.World {
 			return Add(name,true,true,true);
 		}
 		private static Blocktype Add(string name,bool placeable) {
-			return Add(name,placeable,true,true);
+			return Add(name,placeable,!placeable,!placeable);
 		}
 		private static Blocktype Add(string name,bool placeable,bool solid) {
 			return Add(name,placeable,solid,solid);
