@@ -1,3 +1,4 @@
+-- Import types
 luanet.load_assembly("obsidian")
 Message = luanet.import_type("obsidian.Net.Message")
 Region = luanet.import_type("obsidian.World.Region")
@@ -5,12 +6,15 @@ Portal = luanet.import_type("obsidian.World.Objects.Portal")
 Body = luanet.import_type("obsidian.World.Body")
 Blocktype = luanet.import_type("obsidian.World.Blocktype")
 Node = luanet.import_type("obsidian.Data.Node")
+UpdateQueue = luanet.import_type("obsidian.Control.UpdateQueue")
 Command = function(name,syntax,help,func)
   server.Commands:Create(name,syntax,help,func)
 end
 
+-- Load plugins
 dofile "scripts/plugins/stairs.lua"
 dofile "scripts/plugins/gravity.lua"
+dofile "scripts/plugins/grassgrowth.lua"
 
 server.InitializedEvent:Add(
   function()
@@ -19,11 +23,14 @@ server.InitializedEvent:Add(
     operator = FindGroup("operator")
     admin = FindGroup("admin")
     owner = FindGroup("owner")
+    -- Activate plugins
     Stairs.Start(server.Level)
     Gravity.Start(server.Level)
+    Grassgrowth.Start(server.Level)
   end
 )
 
+-- Functions
 function FindPlayer(name)
   local i
   name = name:lower()
