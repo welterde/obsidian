@@ -10,6 +10,7 @@ namespace obsidian.Net {
 	public class Protocol {
 		internal const byte version = 7;
 		
+		private object myLock = new object();
 		private bool running = true;
 		private Socket socket;
 		private byte[] message;
@@ -170,9 +171,10 @@ namespace obsidian.Net {
 		
 		#region Handling
 		private void Disconnect() {
-			if (!running) { return; }
-			Close();
-			Disconnected();
+			lock (myLock) {
+				if (!running) { return; }
+				Close();
+			} Disconnected();
 		}
 		protected void HandleID(IAsyncResult result) {
 			EndRead(result);
