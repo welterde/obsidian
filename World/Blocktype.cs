@@ -72,7 +72,7 @@ namespace obsidian.World {
 			ironOre = Add("IronOre");
 			coalOre = Add("CoalOre");
 			tree = Add("Tree");
-			leaves = Add("Leaves");
+			leaves = Add("Leaves",true,true,false);
 			sponge = Add("Sponge");
 			glass = Add("Glass",true,true,false);
 			red = Add("Red");
