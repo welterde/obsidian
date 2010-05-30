@@ -8,8 +8,8 @@ Command("dummy destroy","<name>","Destroys a dummy.",
     for i,v in ipairs(levelDummies) do
       if v.Name:lower() == message:lower() then
         if dummy then
-          if v.Position.DistanceTo(player.Position) <
-             dummy.Position.DistanceTo(player.Position) then
+          if v.Position:DistanceTo(player.Position) <
+             dummy.Position:DistanceTo(player.Position) then
             dummy = v
           end
         else dummy = v end

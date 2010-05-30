@@ -19,7 +19,7 @@ Grassgrowth = {
       level:SetBlockData(x,y,z,0)
       if y ~= 0 and level:GetBlock(x,y-1,z) == 2 and level:GetBlockData(x,y-1,z) ~= 1 then
         level:SetBlockData(x,y-1,z,1)
-        server.Queue:Add(math.random(6,9)*100,Grassgrowth.Die,{x,y-1,z})
+        server.Queue:Add(math.random(9,12)*1000,Grassgrowth.Die,{x,y-1,z})
       end
       if y ~= level.Depth-1 then 
         above = Blocktype.FindById(level:GetBlock(x,y+1,z))
@@ -34,7 +34,7 @@ Grassgrowth = {
     if level:GetBlockData(x,y,z) ~= 1 then
       if below == 2 then
         if above.Opaque then
-          server.Queue:Add(math.random(6,9)*100,Grassgrowth.Die,{x,y,z})
+          server.Queue:Add(math.random(9,12)*1000,Grassgrowth.Die,{x,y,z})
         else
           for xx = math.max(-2,-x),math.min(2,level.Width-1-x) do
             for yy = math.max(-2,-y),math.min(2,level.Depth-1-y) do
@@ -42,7 +42,7 @@ Grassgrowth = {
                 if math.abs(xx)+math.abs(yy)+math.abs(zz)<4 and level:GetBlock(x+xx,y+yy,z+zz) == 3 and
                    (y+yy == level.Depth-1 or not Blocktype.FindById(level:GetBlock(x+xx,y+yy+1,z+zz)).Opaque) then
                   level:SetBlockData(x+xx,y+yy,z+zz,1)
-                  server.Queue:Add(math.random(26,30)*100,Grassgrowth.Grow,{x+xx,y+yy,z+zz})
+                  server.Queue:Add(math.random(28,38)*1000,Grassgrowth.Grow,{x+xx,y+yy,z+zz})
                 end
               end
             end
@@ -54,7 +54,7 @@ Grassgrowth = {
             for zz = math.max(-2,-z),math.min(2,level.Height-1-z) do
               if math.abs(xx)+math.abs(yy)+math.abs(zz)<4 and level:GetBlock(x+xx,y+yy,z+zz) == 2 then
                 level:SetBlockData(x,y,z,1)
-                server.Queue:Add(math.random(26,30)*100,Grassgrowth.Grow,{x,y,z})
+                server.Queue:Add(math.random(28,38)*1000,Grassgrowth.Grow,{x,y,z})
                 return;
               end
             end
