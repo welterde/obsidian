@@ -35,7 +35,7 @@ namespace obsidian.Net {
 			string name = "%"+BitConverter.ToString(Encoding.ASCII.GetBytes(server.Name)).Replace("-","%");
 			string newUrl = Send("http://www.minecraft.net/heartbeat.jsp",
 			                     "port="+server.Port+
-			                     "&max="+server.maxPlayers+
+			                     "&max="+server.Slots+
 			                     "&users="+server.Players.Count+
 			                     "&name="+name+
 			                     "&public="+server.Public+

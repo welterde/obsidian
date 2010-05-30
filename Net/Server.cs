@@ -21,8 +21,8 @@ namespace obsidian.Net {
 		private string motd = "Welcome to my custom Minecraft server!";
 		private ushort port = 25565;
 		private bool listed = false;
+		private byte slots = 16;
 		private string mainLevel = null;
-		internal byte maxPlayers = 16;
 		internal readonly int salt = new Random().Next();
 		
 		private TextWriter log;
@@ -65,6 +65,10 @@ namespace obsidian.Net {
 		public bool Public {
 			get { return listed; }
 			set { listed = value; }
+		}
+		public byte Slots {
+			get { return slots; }
+			set { slots = value; }
 		}
 		public string MainLevel {
 			get { return mainLevel; }
@@ -197,6 +201,7 @@ namespace obsidian.Net {
 		private void PlayerLogin(Player player,byte version,string name,string verify) {
 			if (version!=Protocol.version) { player.Kick("Wrong version"); }
 			else if (!RegexHelper.IsValidName(name)) { player.Kick("Invalid name"); }
+			else if (players.Count>=slots) { player.Kick("Server is full"); }
 			else if (player.IP!="127.0.0.1" &&
 			         (verify == "--" || !verify.Equals(
 			         	BitConverter.ToString(
