@@ -23,6 +23,7 @@ namespace obsidian.Net {
 		private bool listed = false;
 		private byte slots = 16;
 		private string mainLevel = null;
+		private string help = "&eTo show a list of commands, type '/help commands'.";
 		internal readonly int salt = new Random().Next();
 		
 		private TextWriter log;

@@ -95,7 +95,7 @@ namespace obsidian.Control {
 				Create("help","[<command>|commands]","Displays generic help or information on a specific command.",
 				       delegate (Command command,Player player,string message) {
 				       	if (message=="") {
-				       		new Message("&eTo show a list of commands, type '/help commands'.").Send(player);
+				       		new Message(server.Help).Send(player);
 				       		return;
 				       	} command = this[message];
 				       	if (command==null) { new Message("&eThere is no help available for '"+message+"'.").Send(player); }
