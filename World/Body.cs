@@ -61,13 +61,13 @@ namespace obsidian.World {
 			bool[] used = new bool[255];
 			foreach (Body body in Level.Bodies) { used[body.id] = true; }
 			for (byte i=0;i<used.Length;i++) { if (!used[i]) { id = i; break; } }
-			Protocol.SpawnPacket(this).Send(level);
+			Protocol.SpawnPacket(this).Send(level,this as Player);
 			level.bodies.Add(this);
 			if (ev) { Created.Raise(level.server,this); }
 		}
 		private void Destroy(bool ev) {
 			visible = false;
-			Protocol.DiePacket(id).Send(level);
+			Protocol.DiePacket(id).Send(level,this as Player);
 			level.bodies.Remove(this);
 			if (ev) { Destroyed.Raise(level.server,this); }
 		}
