@@ -2,7 +2,7 @@ Command("reload","<command>{,<command>}","Reload commands.",
   function(command,player,message)
     if message == "" then
       Message("&eSyntax: "..command.syntax):Send(player)
-	  return
+      return
     end
     local commands = message:split(",")
     for i = 1,#commands do

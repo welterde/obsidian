@@ -2,9 +2,9 @@ Command("create portal","","Creates a new portal.",
   function(command,player,message)
     if message ~= "" then
       Message("&eSyntax: "..command.syntax):Send(player)
-	  return
+      return
     end
-	Message("&ePlace the first portal entrance."):Send(player)
+    Message("&ePlace the first portal entrance."):Send(player)
     PlayerSetNextBlock(player,CreatePortalFirst,"Portal creation")
   end
 )

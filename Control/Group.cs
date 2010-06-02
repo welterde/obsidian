@@ -11,6 +11,9 @@ namespace obsidian.Control {
 		
 		#region Members
 		private readonly string name;
+		private bool canJoin = false;
+		private bool canChat = false;
+		private bool canBuild = false;
 		private bool standard = false;
 		private string prefix = "";
 		private string postfix = "";
@@ -21,6 +24,18 @@ namespace obsidian.Control {
 		#region Public members
 		public string Name {
 			get { return name; }
+		}
+		public bool CanJoin {
+			get { return canJoin; }
+			set { canJoin = value; }
+		}
+		public bool CanChat {
+			get { return canChat; }
+			set { canChat = value; }
+		}
+		public bool CanBuild {
+			get { return canBuild; }
+			set { canBuild = value; }
 		}
 		public bool Standard {
 			get { return standard; }
@@ -57,6 +72,7 @@ namespace obsidian.Control {
 				group.standard = bool.Parse((string)node["standard"].Value);
 				group.prefix = (string)node["prefix"].Value;
 				group.postfix = (string)node["postfix"].Value;
+				node["privileges"].ListForeach(group.LoadPrivilege);
 				group.commands = commands.LoadPermissionList(node["commands"]);
 				group.custom = node["custom"]??group.custom;
 				return group;
@@ -68,10 +84,27 @@ namespace obsidian.Control {
 			node["standard"] = new Node(standard.ToString());
 			node["prefix"] = new Node(prefix);
 			node["postfix"] = new Node(postfix);
+			node["privileges"] = SavePrivileges();
 			node["commands"] = Command.List.SavePermissionList(commands);
 			node["custom"] = custom;
 			if (!Directory.Exists("groups")) { Directory.CreateDirectory("groups"); }
 			host.Save("groups/"+name+"."+host.Extension,node,"group");
+		}
+		
+		private void LoadPrivilege(Node node) {
+			switch ((string)node.Value) {
+				case "join": canJoin = true; break;
+				case "chat": canChat = true; break;
+				case "build": canBuild = true; break;
+			}
+		}
+		private Node SavePrivileges() {
+			Node node = new Node();
+			node.MakeList();
+			if (canJoin) { node.Add(new Node("join")); }
+			if (canBuild) { node.Add(new Node("build")); }
+			if (canChat) { node.Add(new Node("chat")); }
+			return node;
 		}
 		
 		public class List {

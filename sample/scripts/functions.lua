@@ -11,25 +11,15 @@ Command = function(name,syntax,help,func)
   server.Commands:Create(name,syntax,help,func)
 end
 
-server.InitializedEvent:Add(
-  function()
-    guest = FindGroup("guest")
-    trusted = FindGroup("trusted")
-    operator = FindGroup("operator")
-    admin = FindGroup("admin")
-    owner = FindGroup("owner")
-  end
-)
-
 -- Functions
 function FindPlayer(name)
   local i
   name = name:lower()
   for i = 0,server.Players.Count-1 do
     local player = server.Players[i]
-	if player.Name:lower() == name then
-	  return player
-	end
+    if player.Name:lower() == name then
+      return player
+    end
   end
   return nil
 end

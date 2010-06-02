@@ -3,6 +3,11 @@
   <string name="standard">false</string>
   <string name="prefix">&amp;3</string>
   <string name="postfix" />
+  <list name="privileges">
+    <string>join</string>
+    <string>chat</string>
+    <string>build</string>
+  </list>
   <list name="commands">
     <string>info</string>
     <string>help</string>
@@ -23,10 +28,7 @@
     <string>show</string>
     <string>hide</string>
     <string>kick</string>
-    <string>admin</string>
-    <string>op</string>
-    <string>trusted</string>
-    <string>guest</string>
+    <string>make</string>
     <string>lua</string>
     <string>reload</string>
     <string>save</string>
@@ -44,12 +46,14 @@
       <string>doublestair</string>
     </list>
     <list name="changegroup">
+      <string>banned</string>
       <string>guest</string>
       <string>trusted</string>
       <string>operator</string>
       <string>admin</string>
     </list>
     <list name="kick">
+      <string>banned</string>
       <string>guest</string>
       <string>trusted</string>
       <string>operator</string>

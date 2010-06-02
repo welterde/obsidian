@@ -2,10 +2,10 @@ Command("about","","Shows information about a block.",
   function(command,player,message)
     if message ~= "" then
       Message("&eSyntax: "..command.syntax):Send(player)
-	  return
+      return
     end
     playerNextBlock[player] = { handle = player.BlockEvent:Add(AboutBlock), name = "Showing block information" }
-	Message("&eSelect a block."):Send(player)
+    Message("&eSelect a block."):Send(player)
   end
 )
 

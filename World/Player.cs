@@ -50,6 +50,7 @@ namespace obsidian.World {
 		internal event Action<Player> IdentifiedEvent = delegate {  };
 		internal event Action<Player,byte,string,string> LoginEvent = delegate {  };
 		internal event Action<Player,string> ChatEvent = delegate {  };
+		internal event Action<Player,string,bool> CommandEvent = delegate {  };
 		internal event Action<Player,BlockArgs,bool> InternalBlockEvent = delegate {  };
 		public event Action<Player> ReadyEvent = delegate {  };
 		public event Action<Player,string> DisconnectedEvent = delegate {  };
@@ -87,18 +88,25 @@ namespace obsidian.World {
 		}
 		private void OnBlock(short x,short y,short z,byte action,byte type) {
 			if (status!=OnlineStatus.Ready) { return; }
-			if (action>=2) { new Message("&eUnknown block action.").Send(this); return; }
-			Blocktype blocktype = Blocktype.FindById(type);
-			if (blocktype==null) { new Message("&eUnknown blocktype.").Send(this); return; }
-			if (!blocktype.Placeable) { new Message("&eUnplaceable blocktype.").Send(this); return; }
-			if (y==level.Depth) { return; }
+			if (!Group.CanBuild) { SendBlock(x,y,z); return; }
+			if (action>=2) {
+				new Message("&eUnknown block action.").Send(this);
+				SendBlock(x,y,z); return;
+			} Blocktype blocktype = Blocktype.FindById(type);
+			if (blocktype==null) {
+				new Message("&eUnknown blocktype.").Send(this);
+				SendBlock(x,y,z); return;
+			} if (!blocktype.Placeable) {
+				new Message("&eUnplaceable blocktype.").Send(this);
+				SendBlock(x,y,z); return;
+			} if (y==level.Depth) { return; }
 			if (x>=level.Width || y>=level.Depth || z>=level.Height) {
 				new Message("&eInvalid block position.").Send(this); return;
 			} byte block = bind[type];
 			if (action==0) { block = 0x00; }
 			byte before = level[x,y,z];
 			if (before==block) {
-				if (bind[type]!=type) { Protocol.BlockPacket(x,y,z,level[x,y,z]).Send(this); }
+				if (bind[type]!=type) { SendBlock(x,y,z); }
 				return;
 			} if (before==Blocktype.adminium.ID && !destroyAdminium) {
 				Protocol.BlockPacket(x,y,z,7).Send(this);
@@ -106,15 +114,29 @@ namespace obsidian.World {
 			} BlockArgs args = new BlockArgs(this,x,y,z,block);
 			BlockEvent.Raise(server,this,args,type);
 			if (!args.Abort) { InternalBlockEvent(this,args,(bind[type]!=type)); }
-			else if (level[x,y,z]==before) { Protocol.BlockPacket(x,y,z,level[x,y,z]).Send(this); }
+			else if (level[x,y,z]==before) { SendBlock(x,y,z); }
+		}
+		private void SendBlock(short x,short y,short z) {
+			if (x<0 || y<0 || z<0 || x>=level.Width || y>=level.Depth || z>=level.Height) { return; }
+			Protocol.BlockPacket(x,y,z,level[x,y,z]).Send(this);
 		}
 		private void OnMove(byte id,ushort x,ushort y,ushort z,byte rotx,byte roty) {
 			if (status!=OnlineStatus.Ready) { return; }
 			Position.Set(x,y,z,rotx,roty);
 		}
 		private void OnChat(byte id,string message) {
-			if (status!=OnlineStatus.Ready) { return; }
-			ChatEvent(this,message);
+			if (status!=OnlineStatus.Ready || !Group.CanChat || message=="") { return; }
+			if (!RegexHelper.IsValidChat(message)) {
+				new Message("&eInvalid characters in chat message.").Send(this);
+			} else if (message[0]=='/') {
+				message = message.Remove(0,1);
+				try { CommandEvent(this,message,true); }
+				catch (CommandException e) { new Message("&e"+e.Message).Send(this); }
+			} else { ChatEvent(this,message); }
+		}
+		
+		public void Use(string message) {
+			CommandEvent(this,message,false);
 		}
 		
 		internal void Send(byte[] buffer) {

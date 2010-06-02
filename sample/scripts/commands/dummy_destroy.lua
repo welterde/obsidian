@@ -2,7 +2,7 @@ Command("dummy destroy","<name>","Destroys a dummy.",
   function(command,player,message)
     if message == "" then
       Message("&eSyntax: "..command.syntax):Send(player)
-	  return
+      return
     end
     local dummy = nil
     for i,v in ipairs(levelDummies) do

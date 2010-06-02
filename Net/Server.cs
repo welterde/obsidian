@@ -75,6 +75,13 @@ namespace obsidian.Net {
 			get { return mainLevel; }
 			set { mainLevel = value; }
 		}
+		public string Help {
+			get { return help; }
+			set {
+				if (value==null) { throw new ArgumentNullException("value"); }
+				help = value;
+			}
+		}
 		
 		public ReadOnlyCollection<Player> Players {
 			get { return players.AsReadOnly(); }
@@ -185,6 +192,7 @@ namespace obsidian.Net {
 			player.LoginEvent += PlayerLogin;
 			player.InternalBlockEvent += PlayerBlock;
 			player.ChatEvent += PlayerChat;
+			player.CommandEvent += PlayerCommand;
 			player.DisconnectedEvent += PlayerDisconnected;
 			Log("{0} connected.",player.IP);
 		}
@@ -209,6 +217,8 @@ namespace obsidian.Net {
 			         		md5.ComputeHash(Encoding.ASCII.GetBytes(salt+name))).
 			         	Replace("-","").TrimStart('0'),StringComparison.OrdinalIgnoreCase))) {
 				player.Kick("Login failed! Try again");
+			} else if (!(accounts[name]==null ? groups.Standard : accounts[name].Group).CanJoin) {
+				player.Kick("You're not allowed to join");
 			} else {
 				players.ForEach(delegate(Player found) {
 				                	if (found.Name.Equals(name,StringComparison.OrdinalIgnoreCase))
@@ -230,20 +240,17 @@ namespace obsidian.Net {
 		}
 		private void PlayerChat(Player player,string message) {
 			if (message=="") { return; }
-			if (!RegexHelper.IsValidChat(message)) {
-				new Message("&eInvalid characters in chat message.").Send(player);
-			} else if (message[0]=='/') {
-				Log(player.Name+" used "+message+".");
-				message = message.Remove(0,1);
-				Command command = commands.Search(ref message);
-				if (command==null) { new Message("&eThis command doesn't exist.").Send(player); }
-				else if (player.Group.Commands.Contains(command)) {
-					command.use.Raise(this,command,player,message);
-				} else { new Message("&eYou're not allowed to use this command.").Send(player); }
-			} else {
-				Log("<{0}> {1}",player.Name,message);
-				new Message(player.Group.Prefix+player.Name+player.Group.Postfix+": &f"+message).Send(level);
-			}
+			Log("<{0}> {1}",player.Name,message);
+			new Message(player.Group.Prefix+player.Name+player.Group.Postfix+": &f"+message).Send(level);
+		}
+		private void PlayerCommand(Player player,string message,bool byPlayer) {
+			if (byPlayer) { Log(player.Name+" used /"+message+"."); }
+			string cmd = message.Split(new char[]{' '},2)[0];
+			Command command = commands.Search(ref message);
+			if (command==null) { throw new CommandException("The command '"+cmd+"' doesn't exist."); }
+			else if (player.Group.Commands.Contains(command) || !byPlayer) {
+				command.use.Raise(this,command,player,message);
+			} else { throw new CommandException("You're not allowed to use '"+command.Name+"'."); }
 		}
 		private void PlayerDisconnected(Player player,string message) {
 			if (player.Status>=Player.OnlineStatus.Identified) {
@@ -262,5 +269,8 @@ namespace obsidian.Net {
 		public void Log(string format,params object[] arg) {
 			log.WriteLine(DateTime.Now.ToString("(HH:mm:ss) ")+format,arg);
 		}
+	}
+	class CommandException : Exception {
+		public CommandException(string message) : base(message) {  }
 	}
 }

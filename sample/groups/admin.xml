@@ -1,8 +1,13 @@
 <compound name="group">
   <string name="name">admin</string>
   <string name="standard">false</string>
-  <string name="prefix">&amp;c</string>
+  <string name="prefix">&amp;3</string>
   <string name="postfix" />
+  <list name="privileges">
+    <string>join</string>
+    <string>chat</string>
+    <string>build</string>
+  </list>
   <list name="commands">
     <string>info</string>
     <string>help</string>
@@ -23,9 +28,7 @@
     <string>show</string>
     <string>hide</string>
     <string>kick</string>
-    <string>op</string>
-    <string>trusted</string>
-    <string>guest</string>
+    <string>make</string>
     <string>lua</string>
     <string>save</string>
     <string>dummy</string>
@@ -42,11 +45,13 @@
       <string>doublestair</string>
     </list>
     <list name="changegroup">
+      <string>banned</string>
       <string>guest</string>
       <string>trusted</string>
       <string>operator</string>
     </list>
     <list name="kick">
+      <string>banned</string>
       <string>guest</string>
       <string>trusted</string>
       <string>operator</string>

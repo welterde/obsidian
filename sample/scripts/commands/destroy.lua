@@ -2,9 +2,9 @@ Command("destroy","","Destroys stuff.",
   function(command,player,message)
     if message ~= "" then
       Message("&eSyntax: "..command.syntax):Send(player)
-	  return
+      return
     end
-	Message("&eSelect something."):Send(player)
+    Message("&eSelect something."):Send(player)
     PlayerSetNextBlock(player,DestroySomething,"Object destroying")
   end
 )

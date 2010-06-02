@@ -3,6 +3,11 @@
   <string name="standard">true</string>
   <string name="prefix">&amp;7</string>
   <string name="postfix" />
+  <list name="privileges">
+    <string>join</string>
+    <string>chat</string>
+    <string>build</string>
+  </list>
   <list name="commands">
     <string>info</string>
     <string>help</string>

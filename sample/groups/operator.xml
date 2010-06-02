@@ -3,25 +3,29 @@
   <string name="standard">false</string>
   <string name="prefix">&amp;c</string>
   <string name="postfix" />
+  <list name="privileges">
+    <string>join</string>
+    <string>chat</string>
+    <string>build</string>
+  </list>
   <list name="commands">
     <string>info</string>
     <string>help</string>
-	<string>help commands</string>
+    <string>help commands</string>
     <string>bind</string>
     <string>me</string>
-	<string>motd</string>
+    <string>motd</string>
     <string>about</string>
-	<string>abort</string>
+    <string>abort</string>
     <string>spawn</string>
-	<string>tp</string>
-	<string>summon</string>
+    <string>tp</string>
+    <string>summon</string>
     <string>setspawn</string>
-	<string>create</string>
-	<string>create portal</string>
+    <string>create</string>
+    <string>create portal</string>
     <string>destroy</string>
-	<string>kick</string>
-    <string>trusted</string>
-    <string>guest</string>
+    <string>kick</string>
+    <string>make</string>
     <string>save</string>
   </list>
   <compound name="custom">
@@ -33,10 +37,12 @@
       <string>doublestair</string>
     </list>
     <list name="changegroup">
+      <string>banned</string>
       <string>guest</string>
       <string>trusted</string>
     </list>
     <list name="kick">
+      <string>banned</string>
       <string>guest</string>
       <string>trusted</string>
     </list>

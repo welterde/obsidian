@@ -15,10 +15,7 @@ dofile "scripts/commands/show.lua"
 dofile "scripts/commands/hide.lua"
 
 dofile "scripts/commands/kick.lua"
-dofile "scripts/commands/admin.lua"
-dofile "scripts/commands/op.lua"
-dofile "scripts/commands/trusted.lua"
-dofile "scripts/commands/guest.lua"
+dofile "scripts/commands/make.lua"
 
 dofile "scripts/commands/lua.lua"
 dofile "scripts/commands/reload.lua"

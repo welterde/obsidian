@@ -1,0 +1,18 @@
+<compound name="group">
+  <string name="name">banned</string>
+  <string name="standard">false</string>
+  <string name="prefix">&amp;8</string>
+  <string name="postfix" />
+  <list name="privileges">
+    <string>chat</string>
+  </list>
+  <list name="commands">
+    <string>info</string>
+    <string>help</string>
+    <string>help commands</string>
+    <string>me</string>
+    <string>motd</string>
+    <string>spawn</string>
+  </list>
+  <compound name="custom" />
+</compound>

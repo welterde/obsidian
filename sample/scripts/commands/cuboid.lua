@@ -7,11 +7,11 @@ Command("cuboid","[<block>]","Draws a cuboid.",
       else b = Blocktype.FindByName(message) end
       if not b then
         Message("&eUnknown blocktype '"..message.."'."):Send(player)
-	    return
+        return
       end
     end
     PlayerSetNextBlock(player,CuboidFirst,"Drawing cuboid",b)
-	Message("&ePlace the first block."):Send(player)
+    Message("&ePlace the first block."):Send(player)
   end
 )
 
