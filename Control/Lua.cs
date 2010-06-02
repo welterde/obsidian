@@ -38,7 +38,7 @@ namespace obsidian.Control {
 				shortMsg = "Error in "+ex.Source+e.Message.Split(new char[1]{'\n'},2)[0];
 				longMsg = "Error in "+ex.Source+e;
 			} if (errorLog!=null) {
-				File.AppendAllText(errorLog,longMsg+"\n");
+				File.AppendAllText(errorLog,DateTime.Now.ToString("(HH:mm:ss) ")+longMsg+"\n");
 				server.Log(shortMsg);
 			} else { server.Log(longMsg); }
 			if (server.Level!=null) {
