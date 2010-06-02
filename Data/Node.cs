@@ -52,6 +52,13 @@ namespace obsidian.Data {
 			foreach (KeyValuePair<string,Node> kvp in dict) { action(kvp.Key,kvp.Value); }
 		}
 		
+		public void MakeList() {
+			value = new List<Node>();
+		}
+		public void MakeDict() {
+			value = new Dictionary<string,Node>(StringComparer.OrdinalIgnoreCase);
+		}
+		
 		private Node GetIndex(object index) {
 			if (index==null) { throw new ArgumentNullException("index"); }
 			if (index is string) { return DictGet((string)index); }
