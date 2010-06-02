@@ -14,15 +14,15 @@ namespace obsidian.Net {
 		
 		public Message(string message) {
 			message = removeInvalid.Replace(message,"");
-			message = removeMultiple.Replace(message,"$+");
-			message = removeEnd.Replace(message,"");
-			message = removeUnused.Replace(message,"$1");
-			if (message[message.Length-1]=='&') {
-				message = message.Substring(0,message.Length-1);
-			} List<string> lines = new List<string>(message.Split(new char[1]{'\n'},StringSplitOptions.RemoveEmptyEntries));
+			List<string> lines = new List<string>(message.Split(new char[1]{'\n'},StringSplitOptions.RemoveEmptyEntries));
 			for (int i=0;i<lines.Count;i++) {
 				string line = lines[i];
-				if (line.Length<=64) { continue; }
+				line = removeMultiple.Replace(line,"$+");
+				line = removeEnd.Replace(line,"");
+				line = removeUnused.Replace(line,"$1");
+				if (line[line.Length-1]=='&') {
+					line = line.Substring(0,line.Length-1);
+				} if (line.Length<=64) { continue; }
 				int lastspace = line.LastIndexOf(' ',63,wordwrap);
 				if (lastspace!=-1) { line = line.Remove(lastspace,1); }
 				int pos = (lastspace!=-1)?lastspace:64;
