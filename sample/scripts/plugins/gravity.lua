@@ -44,3 +44,6 @@ Gravity = {
     player.Level:SetBlock(player,x,y-1,z,above)
   end
 }
+server.InitializedEvent:Add(function()
+  Gravity.Start(server.level)
+end)

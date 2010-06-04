@@ -20,3 +20,6 @@ Stairs = {
     end
   end
 }
+server.InitializedEvent:Add(function()
+  Stairs.Start(server.level)
+end)

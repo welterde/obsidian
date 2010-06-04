@@ -1,6 +1,6 @@
 Command("save","[name]","Saves the level.",
   function(command,player,message)
-    if message == "" then message = server.MainLevel end
+    if message == "" then message = config.level.name end
     if not message then
       Message("&eNo main level specified."):Send(player)
       return

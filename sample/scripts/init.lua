@@ -1,6 +1,8 @@
 -- Import types
 luanet.load_assembly("obsidian")
 Message = luanet.import_type("obsidian.Net.Message")
+Level = luanet.import_type("obsidian.World.Level")
+LevelGenerator = luanet.import_type("obsidian.Utility.LevelGenerator")
 Region = luanet.import_type("obsidian.World.Region")
 Portal = luanet.import_type("obsidian.World.Objects.Portal")
 Body = luanet.import_type("obsidian.World.Body")
@@ -9,6 +11,34 @@ Node = luanet.import_type("obsidian.Data.Node")
 UpdateQueue = luanet.import_type("obsidian.Control.UpdateQueue")
 Command = function(name,syntax,help,func)
   server.Commands:Create(name,syntax,help,func)
+end
+
+-- Load needed files
+dofile("scripts/level.lua")
+dofile("scripts/player.lua")
+dofile("scripts/messages.lua")
+dofile("scripts/commands.lua")
+
+-- Load config
+dofile("config.lua")
+server.Name   = config.name
+server.Motd   = config.motd
+server.Port   = config.port
+server.Public = config.public
+server.Slots  = config.slots
+local file = io.open("levels/"..config.level.name..".lvl")
+if file then
+  io.close(file)
+  server:Log("Loading level ... ",false)
+  server.Level = Level.Load(config.level.name)
+  generate = false
+else
+  server:Log("Generating level ... ",false)
+  server.Level = LevelGenerator.Flatgrass(unpack(config.level))
+end
+server:Log("Done!")
+for i,v in ipairs(config.plugins) do
+  dofile("scripts/plugins/"..v..".lua")
 end
 
 -- Functions

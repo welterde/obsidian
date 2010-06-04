@@ -15,18 +15,18 @@ namespace obsidian.Net {
 		private static readonly MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
 		
 		#region Members
-		private string initfile = "init.lua";
+		private string initfile = "scripts/init.lua";
 		
 		private string name = "Custom Minecraft server";
 		private string motd = "Welcome to my custom Minecraft server!";
 		private ushort port = 25565;
 		private bool listed = false;
 		private byte slots = 16;
-		private string mainLevel = null;
 		private string help = "&eTo show a list of commands, type '/help commands'.";
 		internal readonly int salt = new Random().Next();
 		
 		private TextWriter log;
+		private bool logNewline = true;
 		private Listener listener = new Listener();
 		private Heartbeat heartbeat;
 		private Thread updateThread;
@@ -71,10 +71,6 @@ namespace obsidian.Net {
 			get { return slots; }
 			set { slots = value; }
 		}
-		public string MainLevel {
-			get { return mainLevel; }
-			set { mainLevel = value; }
-		}
 		public string Help {
 			get { return help; }
 			set {
@@ -100,6 +96,10 @@ namespace obsidian.Net {
 		}
 		public Level Level {
 			get { return level; }
+			set {
+				if (Running) { throw new InvalidOperationException("Can't change level while server is running."); }
+				level = value;
+			}
 		}
 		public bool Running {
 			get { return listener.Running; }
@@ -135,23 +135,18 @@ namespace obsidian.Net {
 			int loaded,failed;
 			string error;
 			groups.Load(commands,out loaded,out failed,out error);
-			Log("{0} group{1} loaded{2}.",loaded<0?-loaded:loaded,loaded==1?"":"s",failed==0?"":" ("+failed+" failed)");
+			Log((loaded<0?-loaded:loaded)+" group"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
 			if (error!=null) { Log("Error: "+error); return false; }
 			accounts.Load(groups,out loaded,out failed);
-			Log("{0} account{1} loaded{2}.",loaded,loaded==1?"":"s",failed==0?"":" ("+failed+" failed)");
-			if (mainLevel==null || !File.Exists("levels/"+mainLevel+".lvl")) {
-				log.Write("({0}) Generating Level ... ",DateTime.Now.ToString("HH:mm:ss"));
-				level = LevelGenerator.Flatgrass(128,64,128);
-				if (level==null) { log.WriteLine("Error!"); return false; }
-				log.WriteLine("Done.");
-			} else {
-				level = World.Level.Load(mainLevel);
-				if (level==null) { Log("Failed to load level '"+mainLevel+"'."); return false; }
+			Log(loaded+" account"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
+			if (level==null) {
+				Log("Error: No level loaded.");
+				return false;
 			} level.server = this;
 			if (!listener.Start(port)) {
-				Log("Error: Server creation failed, port {0} already in use?",port);
+				Log("Error: Server creation failed, port "+port+" already in use?");
 				return false;
-			} Log("Server is running on port {0}.",port);
+			} Log("Server is running on port "+port+".");
 			InitializedEvent.Raise(this);
 			heartbeat.Start(1000*55);
 			if (heartbeat.Send()) {
@@ -183,7 +178,7 @@ namespace obsidian.Net {
 			heartbeat.Stop();
 			updateThread.Abort();
 			queue.Stop();
-			Log("Server stopped.",port);
+			Log("Server stopped.");
 		}
 		
 		private void Accept(Socket socket) {
@@ -194,7 +189,7 @@ namespace obsidian.Net {
 			player.ChatEvent += PlayerChat;
 			player.CommandEvent += PlayerCommand;
 			player.DisconnectedEvent += PlayerDisconnected;
-			Log("{0} connected.",player.IP);
+			Log(player.IP+" connected.");
 		}
 		private void UpdateBodies() {
 			int counter = 0;
@@ -224,7 +219,7 @@ namespace obsidian.Net {
 				                	if (found.Name.Equals(name,StringComparison.OrdinalIgnoreCase))
 				                		found.Kick("Someone logged in as you");
 				                });
-				Log("{0} logged in as {1}.",player.IP,name);
+				Log(player.IP+" logged in as "+name+".");
 				connections.Remove(player);
 				players.Add(player);
 				player.account = accounts.Login(player,name);
@@ -240,7 +235,7 @@ namespace obsidian.Net {
 		}
 		private void PlayerChat(Player player,string message) {
 			if (message=="") { return; }
-			Log("<{0}> {1}",player.Name,message);
+			Log("<"+player.Name+"> "+message);
 			new Message(player.Group.Prefix+player.Name+player.Group.Postfix+": &f"+message).Send(level);
 		}
 		private void PlayerCommand(Player player,string message,bool byPlayer) {
@@ -254,20 +249,23 @@ namespace obsidian.Net {
 		}
 		private void PlayerDisconnected(Player player,string message) {
 			if (player.Status>=Player.OnlineStatus.Identified) {
-				Log("{0} disconnected{1}.",player.Name,message==null?"":" ("+message+")");
+				Log(player.Name+" disconnected"+(message==null?"":" ("+message+")")+".");
 				players.Remove(player);
 				accounts.Logout(player.account);
 			} else {
-				Log("{0} disconnected{1}.",player.IP,message==null?"":" ("+message+")");
+				Log(player.IP+" disconnected"+(message==null?"":" ("+message+")")+".");
 				connections.Remove(player);
 			}
 		}
 		
 		public void Log(string value) {
-			log.WriteLine(DateTime.Now.ToString("(HH:mm:ss) ")+value);
+			Log(value,true);
 		}
-		public void Log(string format,params object[] arg) {
-			log.WriteLine(DateTime.Now.ToString("(HH:mm:ss) ")+format,arg);
+		public void Log(string value,bool newline) {
+			if (logNewline) { value = DateTime.Now.ToString("(HH:mm:ss) ")+value; }
+			log.Write(value);
+			if (newline) { log.WriteLine(); }
+			logNewline = newline;
 		}
 	}
 	class CommandException : Exception {

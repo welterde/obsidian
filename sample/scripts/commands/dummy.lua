@@ -10,4 +10,4 @@ Command("dummy","[destroy] <name>","Creates a dummy.",
     table.insert(levelDummies,body)
   end
 )
-dofile "scripts/commands/dummy_destroy.lua"
+dofile("scripts/commands/dummy_destroy.lua")

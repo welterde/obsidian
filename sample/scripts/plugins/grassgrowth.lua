@@ -101,3 +101,6 @@ Grassgrowth = {
     end
   end
 }
+server.InitializedEvent:Add(function()
+  Grassgrowth.Start(server.level)
+end)

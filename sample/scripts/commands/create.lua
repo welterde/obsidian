@@ -3,4 +3,4 @@ Command("create","<object>","Creates various stuff.",
     Message("&eSyntax: "..command.syntax):Send(player)
   end
 )
-dofile "scripts/commands/create_portal.lua"
+dofile("scripts/commands/create_portal.lua")
