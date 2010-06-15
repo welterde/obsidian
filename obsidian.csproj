@@ -42,8 +42,8 @@
     <Reference Include="LuaInterface">
       <HintPath>LuaInterface.dll</HintPath>
     </Reference>
-    <Reference Include="NamedBinaryTag">
-      <HintPath>NamedBinaryTag.dll</HintPath>
+    <Reference Include="NBT">
+      <HintPath>NBT.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
