@@ -42,10 +42,10 @@ namespace obsidian.Data {
 			Check(root,new LinkedList<Node>());
 			XElement element = NodeToElement(root);
 			element.SetAttributeValue("name",name);
-			XmlWriterSettings settings = new XmlWriterSettings(){ OmitXmlDeclaration=false };
-			using (XmlWriter writer = XmlWriter.Create(filename,settings)) {
+			XmlWriterSettings settings = new XmlWriterSettings(){
+				Indent=true, OmitXmlDeclaration=true };
+			using (XmlWriter writer = XmlWriter.Create(filename,settings))
 				element.Save(writer);
-			}
 		}
 		
 		private string GetElementName(XElement element) {
