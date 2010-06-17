@@ -68,19 +68,27 @@ namespace obsidian.Data {
 			AddNode(parent,null,node);
 		}
 		private void AddNode(Tag parent,string name,Node node) {
+			if (node.Value==null) return;
 			switch (((IList<Type>)supported).IndexOf(node.Value.GetType())) {
 				case 8:
 					List<Node> l = (List<Node>)node.Value;
-					Tag list = parent.AddList(ListType(l));
+					Tag list;
+					if (name==null) list = parent.AddList(ListType(l));
+					else list = parent.AddList(name,ListType(l));
 					foreach (Node n in l) AddNode(list,n);
 					break;
 				case 9:
 					Dictionary<string,Node> dict = (Dictionary<string,Node>)node.Value;
-					Tag compound = parent.AddCompound();
+					Tag compound;
+					if (name==null) compound = parent.AddCompound();
+					else compound = parent.AddCompound(name);
 					foreach (KeyValuePair<string,Node> kvp in dict)
-						AddNode(parent,kvp.Key,kvp.Value);
+						AddNode(compound,kvp.Key,kvp.Value);
 					break;
-				default: parent.Add(node.Value); break;
+				default:
+					if (name==null) parent.Add(node.Value);
+					else parent.Add(name, node.Value);
+					break;
 			}
 		}
 		
@@ -91,7 +99,7 @@ namespace obsidian.Data {
 				Type t = n.Value.GetType();
 				if (type==null) { type = t; continue; }
 				if (type!=t) { throw new Exception("List<Node> musn't contain different types of values."); }
-			} return (TagType)((IList<Type>)supported).IndexOf(type);
+			} return (TagType)(((IList<Type>)supported).IndexOf(type)+1);
 		}
 	}
 }
