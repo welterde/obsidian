@@ -1,4 +1,4 @@
-Command("cuboid","[hollow,wireframe] [<block>]","Draws a cuboid.",
+Command("cuboid wireframe","[<block>]","Draws a wireframe cuboid.",
   function(command,player,message)
     local b = nil
     if message ~= "" then
@@ -10,25 +10,22 @@ Command("cuboid","[hollow,wireframe] [<block>]","Draws a cuboid.",
         return
       end
     end
-    PlayerSetNextBlock(player,CuboidFirst,"Drawing cuboid",b)
+    PlayerSetNextBlock(player,CuboidWireframeFirst,"Drawing wireframe cuboid",b)
     Message("&ePlace the first block."):Send(player)
   end
 )
 
-function CuboidFirst(player,args,holding,block)
+function CuboidWireframeFirst(player,args,holding,block)
   Message("&ePlace the second block."):Send(player)
-  PlayerSetNextBlock(player,CuboidSecond,"Drawing cuboid",block,args)
+  PlayerSetNextBlock(player,CuboidWireframeSecond,"Drawing wireframe cuboid",block,args)
   args.Abort = true
 end
 
-function CuboidSecond(player,second,holding,block,first)
+function CuboidWireframeSecond(player,second,holding,block,first)
   block = block or Blocktype.FindById(holding)
   local x1,y1,z1,x2,y2,z2 = math.min(first.X,second.X),math.min(first.Y,second.Y),math.min(first.Z,second.Z),
                             math.max(first.X,second.X)+1,math.max(first.Y,second.Y)+1,math.max(first.Z,second.Z)+1
-  Message("&eCuboid drawn: "..block.Name.." "..x1..","..y1..","..z1.." => "..x2..","..y2..","..z2.."."):Send(player)
-  player.Level:Cuboid(player,x1,y1,z1,x2,y2,z2,block.id)
+  Message("&eWireframe cuboid drawn: "..block.Name.." "..x1..","..y1..","..z1.." => "..x2..","..y2..","..z2.."."):Send(player)
+  player.Level:Cuboid(player,x1,y1,z1,x2,y2,z2,block.id,Level.DrawMode.Wireframe)
   second.Abort = true
 end
-
-dofile("scripts/commands/cuboid_hollow.lua")
-dofile("scripts/commands/cuboid_wireframe.lua")

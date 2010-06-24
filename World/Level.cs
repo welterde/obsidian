@@ -125,17 +125,93 @@ namespace obsidian.World {
 			} return regs;
 		}
 		public void Cuboid(Player player,Region region,byte type) {
+			Cuboid(player,region,type,DrawMode.Solid);
+		}
+		public void Cuboid(Player player,Region region,byte type,DrawMode mode) {
 			Cuboid(player,region.X1,region.Y1,region.Z1,
 			       region.X2,region.Y2,region.Z2,type);
 		}
 		public void Cuboid(Player player,int x1,int y1,int z1,int x2,int y2,int z2,byte type) {
+			Cuboid(player,x1,y1,z1,x2,y2,z2,type,DrawMode.Solid);
+		}
+		public void Cuboid(Player player,int x1,int y1,int z1,int x2,int y2,int z2,byte type,DrawMode mode) {
 			x1 = Math.Max(x1,0); y1 = Math.Max(y1,0); z1 = Math.Max(z1,0);
 			x2 = Math.Min(x2,width); y2 = Math.Min(y2,depth); z2 = Math.Min(z2,height);
-			for (int x=x1;x<x2;x++)
-				for (int y=y1;y<y2;y++)
-					for (int z=z1;z<z2;z++)
-						if (x>=0 && y>=0 && z>=0 && x<width && y<depth && z<height)
-							SetBlock(player,(short)x,(short)y,(short)z,type);
+			switch (mode) {
+				case DrawMode.Solid:
+					for (int x=x1;x<x2;x++)
+						for (int y=y1;y<y2;y++)
+							for (int z=z1;z<z2;z++)
+								SetBlock(player,(short)x,(short)y,(short)z,type);
+					break;
+				case DrawMode.Hollow:
+					for (int x=x1;x<x2;x++)
+						for (int y=y1;y<y2;y++) {
+						SetBlock(player,(short)x,(short)y,(short)z1,type);
+						SetBlock(player,(short)x,(short)y,(short)(z2-1),type);
+					} for (int y=y1;y<y2;y++)
+						for (int z=z1+1;z<z2-1;z++) {
+						SetBlock(player,(short)x1,(short)y,(short)z,type);
+						SetBlock(player,(short)(x2-1),(short)y,(short)z,type);
+					} for (int x=x1+1;x<x2-1;x++)
+						for (int z=z1+1;z<z2-1;z++) {
+						SetBlock(player,(short)x,(short)y1,(short)z,type);
+						SetBlock(player,(short)x,(short)(y2-1),(short)z,type);
+					} break;
+				case DrawMode.Wireframe:
+					for (int x=x1;x<x2;x++) {
+						SetBlock(player,(short)x,(short)y1,(short)z1,type);
+						SetBlock(player,(short)x,(short)y1,(short)(z2-1),type);
+						SetBlock(player,(short)x,(short)(y2-1),(short)z1,type);
+						SetBlock(player,(short)x,(short)(y2-1),(short)(z2-1),type);
+					} for (int y=y1+1;y<y2-1;y++) {
+						SetBlock(player,(short)x1,(short)y,(short)z1,type);
+						SetBlock(player,(short)x1,(short)y,(short)(z2-1),type);
+						SetBlock(player,(short)(x2-1),(short)y,(short)z1,type);
+						SetBlock(player,(short)(x2-1),(short)y,(short)(z2-1),type);
+					} for (int z=z1+1;z<z2-1;z++) {
+						SetBlock(player,(short)x1,(short)y1,(short)z,type);
+						SetBlock(player,(short)x1,(short)(y2-1),(short)z,type);
+						SetBlock(player,(short)(x2-1),(short)y1,(short)z,type);
+						SetBlock(player,(short)(x2-1),(short)(y2-1),(short)z,type);
+					} break;
+			}
+			
+		}
+		public void Sphere(Player player,int x,int y,int z,int radius,byte type) {
+			Sphere(player,x,y,z,radius,type,DrawMode.Solid);
+		}
+		public void Sphere(Player player,int x,int y,int z,int radius,byte type,DrawMode mode) {
+			switch (mode) {
+				case DrawMode.Solid:
+					for (int xx=-radius;xx<radius;xx++)
+						for (int yy=-radius;yy<radius;yy++)
+							for (int zz=-radius;zz<radius;zz++)
+								if (Math.Sqrt(Math.Pow(xx,2)+Math.Pow(yy,2)+Math.Pow(zz,2))+0.5<=radius &&
+								    x+xx>=0 && y+yy>=0 && z+zz>=0 && x+xx<width && y+yy<depth && z+zz<height)
+									SetBlock(player,(short)(xx+x),(short)(yy+y),(short)(zz+z),type);
+					break;
+				case DrawMode.Hollow:
+					SphereHollow(player,x,y,z,radius,radius-1,type);
+					break;
+				case DrawMode.Wireframe:
+					throw new NotImplementedException();
+			}
+		}
+		public void SphereHollow(Player player,int x,int y,int z,int radius,int hollow,byte type) {
+			for (int xx=-radius;xx<radius;xx++)
+				for (int yy=-radius;yy<radius;yy++)
+					for (int zz=-radius;zz<radius;zz++) {
+				double distance = Math.Sqrt(Math.Pow(xx,2)+Math.Pow(yy,2)+Math.Pow(zz,2))+0.5;
+				if (distance<=radius && distance>hollow &&
+				    x+xx>=0 && y+yy>=0 && z+zz>=0 && x+xx<width && y+yy<depth && z+zz<height)
+					SetBlock(player,(short)(xx+x),(short)(yy+y),(short)(zz+z),type);
+			}
+		}
+		public enum DrawMode {
+			Solid,
+			Hollow,
+			Wireframe
 		}
 		#endregion
 		

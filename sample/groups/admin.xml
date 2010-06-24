@@ -25,6 +25,10 @@
     <string>create portal</string>
     <string>destroy</string>
     <string>cuboid</string>
+    <string>cuboid hollow</string>
+    <string>cuboid wireframe</string>
+    <string>sphere</string>
+    <string>sphere hollow</string>
     <string>show</string>
     <string>hide</string>
     <string>kick</string>
