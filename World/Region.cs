@@ -71,6 +71,8 @@ namespace obsidian.World {
 		public event Action Destroyed = delegate {  };
 		#endregion
 		
+		public Region(Region region)
+			: this(region.level,region.X1,region.Y1,region.Z1,region.X2,region.Y2,region.Z2) {  }
 		public Region(Level level,int x1,int y1,int z1,int x2,int y2,int z2) {
 			if (level==null) { throw new ArgumentNullException("level"); }
 			this.level = level;

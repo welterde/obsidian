@@ -9,6 +9,7 @@ namespace obsidian {
 	class Program {
 		private static void Main(string[] args) {
 			Blocktype.Init();
+			ThreadPool.SetMaxThreads(20,100);
 			new Server(Console.Out).Start(args);
 			Thread.Sleep(Timeout.Infinite);
 		}

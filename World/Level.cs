@@ -64,6 +64,7 @@ namespace obsidian.World {
 		#endregion
 		
 		public event EventHandler<BlockArgs> BlockEvent = delegate {  };
+		public event Action<Level> Saving = delegate {  };
 		
 		public Level(short width,short depth,short height) {
 			this.width = width;
@@ -260,6 +261,7 @@ namespace obsidian.World {
 			node["mapdata"] = new Node(mapdata);
 			node["blockdata"] = new Node(blockdata);
 			node["custom"] = custom;
+			Saving.Raise(server,this);
 			if (!Directory.Exists("levels")) { Directory.CreateDirectory("levels"); }
 			host.Save("levels/"+name+".lvl",node,"obsidian-level");
 		}

@@ -80,7 +80,6 @@
     <Compile Include="World\Blocktype.cs" />
     <Compile Include="World\Body.cs" />
     <Compile Include="World\Level.cs" />
-    <Compile Include="World\Objects\Portal.cs" />
     <Compile Include="World\Player.cs" />
     <Compile Include="World\Position.cs" />
     <Compile Include="World\Region.cs" />
@@ -91,6 +90,5 @@
     <Folder Include="Control" />
     <Folder Include="Utility" />
     <Folder Include="World" />
-    <Folder Include="World\Objects" />
   </ItemGroup>
 </Project>

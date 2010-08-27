@@ -205,7 +205,7 @@ namespace obsidian.Net {
 		private void PlayerLogin(Player player,byte version,string name,string verify) {
 			if (version!=Protocol.version) { player.Kick("Wrong version"); }
 			else if (!RegexHelper.IsValidName(name)) { player.Kick("Invalid name"); }
-			else if (players.Count>=slots) { player.Kick("Server is full"); }
+			else if (!player.Group.CanJoinFull && players.Count>=slots) { player.Kick("Server is full"); }
 			else if (player.IP!="127.0.0.1" &&
 			         (verify == "--" || !verify.Equals(
 			         	BitConverter.ToString(

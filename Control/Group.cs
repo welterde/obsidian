@@ -12,6 +12,7 @@ namespace obsidian.Control {
 		#region Members
 		private readonly string name;
 		private bool canJoin = false;
+		private bool canJoinFull = false;
 		private bool canChat = false;
 		private bool canBuild = false;
 		private bool standard = false;
@@ -28,6 +29,10 @@ namespace obsidian.Control {
 		public bool CanJoin {
 			get { return canJoin; }
 			set { canJoin = value; }
+		}
+		public bool CanJoinFull {
+			get { return canJoinFull; }
+			set { canJoinFull = value; }
 		}
 		public bool CanChat {
 			get { return canChat; }
@@ -94,6 +99,7 @@ namespace obsidian.Control {
 		private void LoadPrivilege(Node node) {
 			switch ((string)node.Value) {
 				case "join": canJoin = true; break;
+				case "joinfull": canJoinFull = true; break;
 				case "chat": canChat = true; break;
 				case "build": canBuild = true; break;
 			}
@@ -102,6 +108,7 @@ namespace obsidian.Control {
 			Node node = new Node();
 			node.MakeList();
 			if (canJoin) { node.Add(new Node("join")); }
+			if (canJoinFull) { node.Add(new Node("joinfull")); }
 			if (canBuild) { node.Add(new Node("build")); }
 			if (canChat) { node.Add(new Node("chat")); }
 			return node;
