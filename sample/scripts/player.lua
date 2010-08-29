@@ -21,5 +21,9 @@ function PlayerAbortNextBlock(player)
 end
 
 function PlayerNextBlockInfo(player)
-  return playerNextBlock[player].info
+  local p = playerNextBlock[player]
+  if p then
+    return p.info
+  end
+  return nil
 end

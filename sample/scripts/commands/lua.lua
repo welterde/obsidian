@@ -26,7 +26,7 @@ Command("lua","<code>","Executes a piece of LUA code.",
         else
           err = "Unknown errortype."
         end
-        Message(err:split("\n",2)[0]):Send(player)
+        Message(err:split("\n",2)[1]):Send(player)
       end
     end
   end

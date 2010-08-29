@@ -1,11 +1,10 @@
 <compound name="group">
-  <string name="name">operator</string>
+  <string name="name">builder</string>
   <string name="standard">false</string>
-  <string name="prefix">&amp;c</string>
+  <string name="prefix">&amp;2</string>
   <string name="postfix" />
   <list name="privileges">
     <string>join</string>
-    <string>joinfull</string>
     <string>chat</string>
     <string>build</string>
   </list>
@@ -21,18 +20,12 @@
     <string>spawn</string>
     <string>tp</string>
     <string>summon</string>
-    <string>setspawn</string>
-    <string>create</string>
-    <string>create portal</string>
-    <string>destroy</string>
     <string>cuboid</string>
     <string>cuboid hollow</string>
     <string>cuboid wireframe</string>
     <string>sphere</string>
     <string>sphere hollow</string>
     <string>adminium</string>
-    <string>kick</string>
-    <string>make</string>
     <string>mode</string>
   </list>
   <compound name="custom">
@@ -42,17 +35,6 @@
       <string>stillwater</string>
       <string>stilllava</string>
       <string>doublestair</string>
-    </list>
-    <list name="changegroup">
-      <string>banned</string>
-      <string>guest</string>
-      <string>trusted</string>
-    </list>
-    <list name="kick">
-      <string>banned</string>
-      <string>guest</string>
-      <string>trusted</string>
-      <string>builder</string>
     </list>
   </compound>
 </compound>

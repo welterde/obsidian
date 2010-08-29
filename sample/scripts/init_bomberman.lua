@@ -1,0 +1,1 @@
+config_file = "config_bomberman.lua"dofile "scripts/init.lua"

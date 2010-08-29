@@ -10,6 +10,8 @@ dofile("scripts/commands/setspawn.lua")
 dofile("scripts/commands/create.lua")
 dofile("scripts/commands/destroy.lua")
 dofile("scripts/commands/cuboid.lua")
+dofile("scripts/commands/sphere.lua")
+dofile("scripts/commands/adminium.lua")
 
 dofile("scripts/commands/show.lua")
 dofile("scripts/commands/hide.lua")

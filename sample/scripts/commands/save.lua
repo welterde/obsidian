@@ -1,4 +1,4 @@
-Command("save","[name]","Saves the level.",
+Command("save","[<name>]","Saves the level.",
   function(command,player,message)
     if message == "" then message = config.level.name end
     if not message then
@@ -17,6 +17,6 @@ Command("save","[name]","Saves the level.",
 )
 
 function SaveLevel(filename)
-  LevelSave(server.Level)
+  if LevelSave then LevelSave(server.Level) end
   server.Level:Save(filename)
 end

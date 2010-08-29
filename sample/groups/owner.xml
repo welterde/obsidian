@@ -5,6 +5,7 @@
   <string name="postfix" />
   <list name="privileges">
     <string>join</string>
+    <string>joinfull</string>
     <string>chat</string>
     <string>build</string>
   </list>
@@ -29,6 +30,7 @@
     <string>cuboid wireframe</string>
     <string>sphere</string>
     <string>sphere hollow</string>
+    <string>adminium</string>
     <string>show</string>
     <string>hide</string>
     <string>kick</string>
@@ -38,6 +40,7 @@
     <string>save</string>
     <string>dummy</string>
     <string>dummy destroy</string>
+    <string>mode</string>
   </list>
   <compound name="custom">
     <list name="bind">
@@ -53,6 +56,7 @@
       <string>banned</string>
       <string>guest</string>
       <string>trusted</string>
+      <string>builder</string>
       <string>operator</string>
       <string>admin</string>
     </list>
@@ -60,6 +64,7 @@
       <string>banned</string>
       <string>guest</string>
       <string>trusted</string>
+      <string>builder</string>
       <string>operator</string>
       <string>admin</string>
     </list>

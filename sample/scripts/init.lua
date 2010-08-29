@@ -14,13 +14,12 @@ Command = function(name,syntax,help,func)
 end
 
 -- Load needed files
-dofile("scripts/level.lua")
 dofile("scripts/player.lua")
 dofile("scripts/messages.lua")
 dofile("scripts/commands.lua")
 
 -- Load config
-dofile("config.lua")
+dofile(config_file or "config.lua")
 server.Name   = config.name
 server.Motd   = config.motd
 server.Port   = config.port
@@ -60,6 +59,20 @@ end
 
 function FindAccount(name)
   return server.Accounts[name]
+end
+
+function ToCompound(t)
+  local node = Node()
+  for k,v in pairs(t) do
+    node[k] = Node(v)
+  end
+  return node
+end
+
+function FromCompound(node)
+  t = {}
+  node:DictForeach(function(name,n) t[name] = n.Value end)
+  return t
 end
 
 function string:split(sep,limit) 

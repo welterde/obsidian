@@ -5,7 +5,7 @@ Command("dummy destroy","<name>","Destroys a dummy.",
       return
     end
     local dummy = nil
-    for i,v in ipairs(levelDummies) do
+    for i,v in ipairs(level_dummies) do
       if v.Name:lower() == message:lower() then
         if dummy then
           if v.Position:DistanceTo(player.Position) <
@@ -17,7 +17,7 @@ Command("dummy destroy","<name>","Destroys a dummy.",
     end
     if dummy then
       Message("&eDummy '"..dummy.Name.."' destroyed."):Send(player)
-      table.removevalue(levelDummies,dummy)
+      table.removevalue(level_dummies,dummy)
       dummy.Visible = false
     else
       Message("&eThere is no dummy '"..message.."'."):Send(player)

@@ -1,4 +1,4 @@
-Command("me","","Makes you do something. LOL!",
+Command("me","<message>","Displays an action message.",
   function(command,player,message)
     if message == "" then
       Message("&eSyntax: "..command.syntax):Send(player)

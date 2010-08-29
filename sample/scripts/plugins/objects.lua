@@ -51,17 +51,4 @@ function LevelSave(level)
   end
 end
 
-function ToCompound(t)
-  local node = Node()
-  for k,v in pairs(t) do
-    node[k] = Node(v)
-  end
-  return node
-end
-function FromCompound(node)
-  t = {}
-  node:DictForeach(function(name,n) t[name] = n.Value end)
-  return t
-end
-
 server.InitializedEvent:Add(function() LevelLoad(server.Level) end)

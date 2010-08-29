@@ -1,4 +1,4 @@
-Command("make","<name> <group>","Changes the group of a player.",
+Command("make","<account> <group>","Changes the group of a player.",
   function(command,player,message)
     if message == "" then
       Message("&eSyntax: "..command.syntax):Send(player)
