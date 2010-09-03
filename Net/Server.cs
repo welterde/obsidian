@@ -16,13 +16,7 @@ namespace obsidian.Net {
 		
 		#region Members
 		private string initfile = "scripts/init.lua";
-		
-		private string name = "Custom Minecraft server";
-		private string motd = "Welcome to my custom Minecraft server!";
 		private ushort port = 25565;
-		private bool listed = false;
-		private byte slots = 16;
-		private string help = "&eTo show a list of commands, type '/help commands'.";
 		internal readonly int salt = new Random().Next();
 		
 		private TextWriter log;
@@ -34,66 +28,31 @@ namespace obsidian.Net {
 		
 		private List<Player> connections = new List<Player>();
 		private List<Player> players = new List<Player>();
-		private Command.List commands;
-		private Group.List groups = new Group.List();
-		private Account.List accounts = new Account.List();
-		private UpdateQueue queue;
 		private Level level;
 		#endregion
 		
 		#region Public members
-		public string Name {
-			get { return name; }
-			set {
-				if (value==null) { throw new ArgumentNullException(); }
-				name = value;
-			}
-		}
-		public string Motd {
-			get { return motd; }
-			set {
-				if (value==null) { throw new ArgumentNullException(); }
-				motd = value;
-			}
-		}
+		public string Name { get; set; }
+		public string Motd { get; set; }
 		public ushort Port {
 			get { return port; }
 			set {
-				if (listener.Running) { throw new Exception("Change port while server is running."); }
+				if (Running) { throw new Exception("Can't change port while server is running."); }
 				port = value;
 			}
 		}
-		public bool Public {
-			get { return listed; }
-			set { listed = value; }
-		}
-		public byte Slots {
-			get { return slots; }
-			set { slots = value; }
-		}
-		public string Help {
-			get { return help; }
-			set {
-				if (value==null) { throw new ArgumentNullException("value"); }
-				help = value;
-			}
-		}
+		public bool Public { get; set; }
+		public bool Verify { get; set; }
+		public byte Slots { get; set; }
+		public string Help { get; set; }
 		
 		public ReadOnlyCollection<Player> Players {
 			get { return players.AsReadOnly(); }
 		}
-		public Command.List Commands {
-			get { return commands; }
-		}
-		public Group.List Groups {
-			get { return groups; }
-		}
-		public Account.List Accounts {
-			get { return accounts; }
-		}
-		public UpdateQueue Queue {
-			get { return queue; }
-		}
+		public Command.List Commands { get; private set; }
+		public Group.List Groups { get; private set; }
+		public Account.List Accounts { get; private set; }
+		public UpdateQueue Queue { get; private set; }
 		public Level Level {
 			get { return level; }
 			set {
@@ -111,12 +70,22 @@ namespace obsidian.Net {
 		
 		public Server(TextWriter log) {
 			this.log = log;
+			
+			Name = "Custom Minecraft server";
+			Motd = "Welcome to my custom Minecraft server!";
+			Public = false;
+			Verify = true;
+			Slots = 16;
+			Help = "&eTo show a list of commands, type '/help commands'.";
+			
 			listener.AcceptEvent += Accept;
 			heartbeat = new Heartbeat(this);
 			updateThread = new Thread(UpdateBodies);
 			lua = new Lua(this);
-			commands = new Command.List(this);
-			queue = new UpdateQueue(this);
+			Commands = new Command.List(this);
+			Groups = new Group.List();
+			Accounts = new Account.List();
+			Queue = new UpdateQueue(this);
 		}
 		
 		public bool Start() {
@@ -128,16 +97,16 @@ namespace obsidian.Net {
 			log.WriteLine("   = Minecraft Server \"obsidian\" =");
 			log.WriteLine();
 			if (!ParseParameters(args)) { return false; }
-			commands.Init();
+			Commands.Init();
 			lua.errorLog = "error.log";
 			Log("Using initfile '"+initfile+"'.");
 			if (!lua.Start(initfile)) { return false; }
 			int loaded,failed;
 			string error;
-			groups.Load(commands,out loaded,out failed,out error);
+			Groups.Load(Commands,out loaded,out failed,out error);
 			Log((loaded<0?-loaded:loaded)+" group"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
 			if (error!=null) { Log("Error: "+error); return false; }
-			accounts.Load(groups,out loaded,out failed);
+			Accounts.Load(Groups,out loaded,out failed);
 			Log(loaded+" account"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
 			if (level==null) {
 				Log("Error: No level loaded.");
@@ -153,7 +122,7 @@ namespace obsidian.Net {
 				File.WriteAllText("externalurl.txt",heartbeat.url);
 				Log("URL saved to externalurl.txt.\n  "+heartbeat.url);
 			} updateThread.Start();
-			queue.Start();
+			Queue.Start();
 			return true;
 		}
 		private bool ParseParameters(string[] args) {
@@ -172,12 +141,12 @@ namespace obsidian.Net {
 			} return true;
 		}
 		public void Stop() {
-			if (Running) { throw new Exception("Server isn't running"); }
+			if (!Running) { throw new Exception("Server isn't running"); }
 			lua.Stop();
 			listener.Stop();
 			heartbeat.Stop();
 			updateThread.Abort();
-			queue.Stop();
+			Queue.Stop();
 			Log("Server stopped.");
 		}
 		
@@ -205,14 +174,15 @@ namespace obsidian.Net {
 		private void PlayerLogin(Player player,byte version,string name,string verify) {
 			if (version!=Protocol.version) { player.Kick("Wrong version"); }
 			else if (!RegexHelper.IsValidName(name)) { player.Kick("Invalid name"); }
-			else if (!player.Group.CanJoinFull && players.Count>=slots) { player.Kick("Server is full"); }
-			else if (player.IP!="127.0.0.1" &&
+			else if (!(Accounts[name]==null ? Groups.Standard : Accounts[name].Group).CanJoinFull && players.Count>=Slots) {
+				player.Kick("Server is full");
+			} else if (!Verify && player.IP!="127.0.0.1" &&
 			         (verify == "--" || !verify.Equals(
 			         	BitConverter.ToString(
 			         		md5.ComputeHash(Encoding.ASCII.GetBytes(salt+name))).
 			         	Replace("-","").TrimStart('0'),StringComparison.OrdinalIgnoreCase))) {
 				player.Kick("Login failed! Try again");
-			} else if (!(accounts[name]==null ? groups.Standard : accounts[name].Group).CanJoin) {
+			} else if (!(Accounts[name]==null ? Groups.Standard : Accounts[name].Group).CanJoin) {
 				player.Kick("You're not allowed to join");
 			} else {
 				players.ForEach(delegate(Player found) {
@@ -222,7 +192,7 @@ namespace obsidian.Net {
 				Log(player.IP+" logged in as "+name+".");
 				connections.Remove(player);
 				players.Add(player);
-				player.account = accounts.Login(player,name);
+				player.account = Accounts.Login(player,name);
 				player.level = level;
 				PlayerLoginEvent.Raise(this,player,name);
 			}
@@ -241,7 +211,7 @@ namespace obsidian.Net {
 		private void PlayerCommand(Player player,string message,bool byPlayer) {
 			if (byPlayer) { Log(player.Name+" used /"+message+"."); }
 			string cmd = message.Split(new char[]{' '},2)[0];
-			Command command = commands.Search(ref message);
+			Command command = Commands.Search(ref message);
 			if (command==null) { throw new CommandException("The command '"+cmd+"' doesn't exist."); }
 			else if (player.Group.Commands.Contains(command) || !byPlayer) {
 				command.use.Raise(this,command,player,message);
@@ -251,7 +221,7 @@ namespace obsidian.Net {
 			if (player.Status>=Player.OnlineStatus.Identified) {
 				Log(player.Name+" disconnected"+(message==null?"":" ("+message+")")+".");
 				players.Remove(player);
-				accounts.Logout(player.account);
+				Accounts.Logout(player.account);
 			} else {
 				Log(player.IP+" disconnected"+(message==null?"":" ("+message+")")+".");
 				connections.Remove(player);

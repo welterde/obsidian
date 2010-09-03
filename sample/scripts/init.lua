@@ -24,6 +24,7 @@ server.Name   = config.name
 server.Motd   = config.motd
 server.Port   = config.port
 server.Public = config.public
+server.Verify = config.verify
 server.Slots  = config.slots
 local file = io.open("levels/"..config.level.name..".lvl")
 if file then
