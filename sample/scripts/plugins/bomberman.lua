@@ -12,7 +12,6 @@ function bomberman.create(level,x1,y1,z1,x2,y2,z2)
     counter = 0,
     players = {},
     blocks = {},
-    level = level,
     region = Region(level,x1,y1,z1,x2,y2,z2)
   }
   setmetatable(object,bomberman)
