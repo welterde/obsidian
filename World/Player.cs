@@ -49,12 +49,12 @@ namespace obsidian.World {
 		#region Events
 		internal event Action<Player> IdentifiedEvent = delegate {  };
 		internal event Action<Player,byte,string,string> LoginEvent = delegate {  };
-		internal event Action<Player,string> ChatEvent = delegate {  };
 		internal event Action<Player,string,bool> CommandEvent = delegate {  };
 		internal event Action<Player,BlockArgs,bool> InternalBlockEvent = delegate {  };
 		public event Action<Player> ReadyEvent = delegate {  };
 		public event Action<Player,string> DisconnectedEvent = delegate {  };
 		public event Action<Player,BlockArgs,byte> BlockEvent = delegate {  };
+		public event Action<Player,string> ChatEvent = delegate {  };
 		#endregion
 		
 		internal Player(Server server,Protocol helper) {
@@ -132,7 +132,7 @@ namespace obsidian.World {
 				message = message.Remove(0,1);
 				try { CommandEvent(this,message,true); }
 				catch (CommandException e) { new Message("&e"+e.Message).Send(this); }
-			} else { ChatEvent(this,message); }
+			} else { ChatEvent.Raise(server,this,message); }
 		}
 		
 		public void Use(string message) {

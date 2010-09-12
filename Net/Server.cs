@@ -155,7 +155,6 @@ namespace obsidian.Net {
 			connections.Add(player);
 			player.LoginEvent += PlayerLogin;
 			player.InternalBlockEvent += PlayerBlock;
-			player.ChatEvent += PlayerChat;
 			player.CommandEvent += PlayerCommand;
 			player.DisconnectedEvent += PlayerDisconnected;
 			Log(player.IP+" connected.");
@@ -177,10 +176,10 @@ namespace obsidian.Net {
 			else if (!(Accounts[name]==null ? Groups.Standard : Accounts[name].Group).CanJoinFull && players.Count>=Slots) {
 				player.Kick("Server is full");
 			} else if (!Verify && player.IP!="127.0.0.1" &&
-			         (verify == "--" || !verify.Equals(
-			         	BitConverter.ToString(
-			         		md5.ComputeHash(Encoding.ASCII.GetBytes(salt+name))).
-			         	Replace("-","").TrimStart('0'),StringComparison.OrdinalIgnoreCase))) {
+			           (verify == "--" || !verify.Equals(
+			           	BitConverter.ToString(
+			           		md5.ComputeHash(Encoding.ASCII.GetBytes(salt+name))).
+			           	Replace("-","").TrimStart('0'),StringComparison.OrdinalIgnoreCase))) {
 				player.Kick("Login failed! Try again");
 			} else if (!(Accounts[name]==null ? Groups.Standard : Accounts[name].Group).CanJoin) {
 				player.Kick("You're not allowed to join");
@@ -202,11 +201,6 @@ namespace obsidian.Net {
 				if (!player.level.SetBlock(player,e.X,e.Y,e.Z,e.Type))
 					Protocol.BlockPacket(e.X,e.Y,e.Z,player.level[e.X,e.Y,e.Z]).Send(player);
 			} else { player.level.PlayerSetBlock(player,e.X,e.Y,e.Z,e.Type); }
-		}
-		private void PlayerChat(Player player,string message) {
-			if (message=="") { return; }
-			Log("<"+player.Name+"> "+message);
-			new Message(player.Group.Prefix+player.Name+player.Group.Postfix+": &f"+message).Send(level);
 		}
 		private void PlayerCommand(Player player,string message,bool byPlayer) {
 			if (byPlayer) { Log(player.Name+" used /"+message+"."); }
