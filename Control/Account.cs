@@ -108,17 +108,22 @@ namespace obsidian.Control {
 			
 			internal List() {  }
 			
-			internal void Load(Group.List groups,out int loaded,out int failed) {
+			internal void Load(Group.List groups) {
 				accounts.Clear();
 				this.groups = groups;
-				loaded = 0; failed = 0;
+				int loaded = 0;
+				int failed = 0;
+				int cursor = Console.CursorLeft;
 				if (!Directory.Exists("accounts")) { return; }
 				foreach (string file in Directory.GetFiles("accounts","*."+host.Extension)) {
 					string name = file.Substring(9,file.Length-host.Extension.Length-10);
 					Account account = Account.Load(groups,name);
 					if (account==null) { failed++; }
 					else { loaded++; accounts.Add(account.name.ToLower(),account); }
+					Console.Write(loaded+" account"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
+					Console.CursorLeft = cursor;
 				}
+				Console.Write(loaded+" account"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
 			}
 			
 			internal Account Login(Player player,string name) {

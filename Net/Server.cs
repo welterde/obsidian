@@ -101,13 +101,10 @@ namespace obsidian.Net {
 			lua.errorLog = "error.log";
 			Log("Using initfile '"+initfile+"'.");
 			if (!lua.Start(initfile)) { return false; }
-			int loaded,failed;
 			string error;
-			Groups.Load(Commands,out loaded,out failed,out error);
-			Log((loaded<0?-loaded:loaded)+" group"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
+			Log("",false); Groups.Load(Commands,out error); Log("");
 			if (error!=null) { Log("Error: "+error); return false; }
-			Accounts.Load(Groups,out loaded,out failed);
-			Log(loaded+" account"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
+			Log("",false); Accounts.Load(Groups); Log("");
 			if (level==null) {
 				Log("Error: No level loaded.");
 				return false;
@@ -226,10 +223,12 @@ namespace obsidian.Net {
 			Log(value,true);
 		}
 		public void Log(string value,bool newline) {
-			if (logNewline) { value = DateTime.Now.ToString("(HH:mm:ss) ")+value; }
-			log.Write(value);
-			if (newline) { log.WriteLine(); }
-			logNewline = newline;
+			lock (log) {
+				if (logNewline) { value = DateTime.Now.ToString("(HH:mm:ss) ")+value; }
+				log.Write(value);
+				if (newline) { log.WriteLine(); }
+				logNewline = newline;
+			}
 		}
 	}
 	class CommandException : Exception {

@@ -130,10 +130,13 @@ namespace obsidian.Control {
 				get { return groups.Values; }
 			}
 			
-			internal void Load(Command.List commands,out int loaded,out int failed,out string error) {
+			internal void Load(Command.List commands,out string error) {
 				groups.Clear();
 				standard = null;
-				loaded = 0; failed = 0; error = null;
+				int loaded = 0;
+				int failed = 0;
+				int cursor = Console.CursorLeft;
+				error = null;
 				if (!Directory.Exists("groups")) { return; }
 				foreach (string file in Directory.GetFiles("groups","*."+host.Extension)) {
 					string name = file.Substring(7,file.Length-host.Extension.Length-8);
@@ -145,7 +148,11 @@ namespace obsidian.Control {
 						} loaded++;
 						groups.Add(group.name.ToLower(),group);
 					}
-				} if (loaded==0) { error = "No groups loaded."; }
+					Console.Write((loaded<0?-loaded:loaded)+" group"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
+					Console.CursorLeft = cursor;
+				}
+				Console.Write((loaded<0?-loaded:loaded)+" group"+(loaded==1?"":"s")+" loaded"+(failed==0?"":" ("+failed+" failed)")+".");
+				if (loaded==0) { error = "No groups loaded."; }
 				else if (standard==null) { error = "No standard group specified."; }
 			}
 		}
